@@ -40,4 +40,11 @@ public class Post {
     private List<Comment> comments;
 
     public Post() {}
+
+    public Post(String username, String heading, String text, LocalDateTime createdAt) {
+        this.username = username;
+        this.heading = heading;
+        this.text = text;
+        this.createdAt = createdAt;
+    }
 }
