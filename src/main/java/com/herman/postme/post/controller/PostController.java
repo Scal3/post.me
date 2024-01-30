@@ -4,6 +4,8 @@ import com.herman.postme.post.dto.PostDto;
 import com.herman.postme.post.entity.Post;
 import com.herman.postme.post.service.PostService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,11 +22,11 @@ public class PostController {
 
     private final PostService postService;
 
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public List<Post> getAllPosts(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int limit
+            @RequestParam(defaultValue = "0") @PositiveOrZero int page,
+            @RequestParam(defaultValue = "20") @Positive int limit
     ) {
         log.debug("Entering getAllPosts method");
         log.debug("Got {} value as page argument", page);
@@ -37,9 +39,9 @@ public class PostController {
         return posts;
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public Post getOnePostById(@PathVariable long id) {
+    public Post getOnePostById(@PathVariable @Positive long id) {
         log.debug("Entering getOnePostById method");
         log.debug("Got {} value as id argument", id);
 
