@@ -1,0 +1,6 @@
+<configuration>
+    <logger name="com.herman.postme" level="OFF" />
+    <root level="OFF">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>
