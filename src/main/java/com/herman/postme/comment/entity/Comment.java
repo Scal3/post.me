@@ -1,5 +1,6 @@
 package com.herman.postme.comment.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.herman.postme.post.entity.Post;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -32,7 +33,15 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "posts_id")
+    @JsonIgnore
     private Post post;
 
     public Comment() {}
+
+    public Comment(String username, String text, LocalDateTime createdAt, Post post) {
+        this.username = username;
+        this.text = text;
+        this.createdAt = createdAt;
+        this.post = post;
+    }
 }

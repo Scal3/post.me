@@ -54,12 +54,14 @@ public class PostController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public void createPost(@Valid @RequestBody PostDto dto) {
+    public Post createPost(@Valid @RequestBody PostDto dto) {
         log.debug("Entering createPost method");
         log.debug("Got {} as dto argument", dto);
 
-        postService.createPost(dto);
+        Post post = postService.createPost(dto);
 
         log.debug("Exiting createPost method");
+
+        return post;
     }
 }

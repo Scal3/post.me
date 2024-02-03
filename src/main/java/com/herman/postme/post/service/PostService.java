@@ -45,13 +45,13 @@ public class PostService {
                     );
                 });
 
-        log.info("Post with id {} was found {}", id, post);
+        log.info("Post was found");
         log.info("Exiting getOnePostById method");
 
         return post;
     }
 
-    public void createPost(PostDto dto) {
+    public Post createPost(PostDto dto) {
         log.debug("Entering createPost method");
         log.debug("Got {} as dto argument", dto);
 
@@ -64,9 +64,11 @@ public class PostService {
 
         log.debug("Post entity was build {}", post);
 
-        postRepository.save(post);
+        Post createdPost = postRepository.save(post);
 
         log.debug("Post entity was saved into DB");
         log.debug("Exiting createPost method");
+
+        return createdPost;
     }
 }
