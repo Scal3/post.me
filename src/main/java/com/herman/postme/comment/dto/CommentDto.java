@@ -6,8 +6,6 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
 public class CommentDto {
 
@@ -24,6 +22,4 @@ public class CommentDto {
     @NotNull
     @Positive
     private Long postId;
-
-    private LocalDateTime createdAt;
 }
