@@ -19,7 +19,9 @@ public class CommentController {
     private final CommentService commentService;
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public Comment createComment(@RequestBody @Valid CommentDto dto) {
         log.debug("Entering createComment method");
         log.debug("Got {} as dto argument", dto);

@@ -52,7 +52,9 @@ public class PostController {
         return post;
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public Post createPost(@Valid @RequestBody PostDto dto) {
         log.debug("Entering createPost method");
