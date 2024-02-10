@@ -3,7 +3,7 @@ package com.herman.postme.comment.controller;
 import com.herman.postme.comment.dto.CommentDto;
 import com.herman.postme.comment.entity.Comment;
 import com.herman.postme.comment.service.CommentService;
-import jakarta.validation.Valid;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

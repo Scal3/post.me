@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import javax.validation.ConstraintViolationException;
+import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class ErrorHandler {
@@ -19,6 +21,18 @@ public class ErrorHandler {
                 e.getDescription(),
                 e.getPath(),
                 e.getTime()
+        );
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler
+    public ErrorResponse handleError(ConstraintViolationException e) {
+        return new ErrorResponse(
+                400,
+                e.getMessage(),
+                "",
+                "",
+                LocalDateTime.now()
         );
     }
 }

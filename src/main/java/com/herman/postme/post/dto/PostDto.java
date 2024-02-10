@@ -1,7 +1,7 @@
 package com.herman.postme.post.dto;
 
 import lombok.Data;
-import jakarta.validation.constraints.*;
+import javax.validation.constraints.*;
 
 @Data
 public class PostDto {

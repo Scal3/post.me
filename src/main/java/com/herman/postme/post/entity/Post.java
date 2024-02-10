@@ -1,9 +1,10 @@
 package com.herman.postme.post.entity;
 
 import com.herman.postme.comment.entity.Comment;
-import jakarta.persistence.*;
+
 import lombok.Data;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 

@@ -3,18 +3,20 @@ package com.herman.postme.post.controller;
 import com.herman.postme.post.dto.PostDto;
 import com.herman.postme.post.entity.Post;
 import com.herman.postme.post.service.PostService;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Slf4j
+@Validated
 @RestController
 @RequestMapping("/posts")
 @RequiredArgsConstructor
@@ -41,7 +43,7 @@ public class PostController {
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public Post getOnePostById(@PathVariable @Positive long id) {
+    public Post getOnePostById(@Valid @PathVariable @Positive long id) {
         log.debug("Entering getOnePostById method");
         log.debug("Got {} value as id argument", id);
 
