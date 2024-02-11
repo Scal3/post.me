@@ -1,5 +1,6 @@
 package com.herman.postme.user.entity;
 
+import com.herman.postme.role.entity.Role;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -31,5 +32,7 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserProfile userProfile;
 
-    // TODO add role
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private Role role;
 }
