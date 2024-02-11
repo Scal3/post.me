@@ -35,7 +35,7 @@ public class JWTUtil {
 
         return JWT.create()
                 .withSubject(tokenSubject)
-                .withClaim("user_id", dto.getUserId())
+                .withClaim("email", dto.getEmail())
                 .withClaim("role", dto.getRoleName())
                 .withIssuedAt(issuedAt)
                 .withIssuer(tokenIssuer)
@@ -52,7 +52,7 @@ public class JWTUtil {
         DecodedJWT jwt = verifier.verify(token);
 
         return new TokenPayloadDto(
-                jwt.getClaim("user_id").asLong(),
+                jwt.getClaim("email").asString(),
                 jwt.getClaim("role").asString()
         );
     }

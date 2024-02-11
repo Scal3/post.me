@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TokenPayloadDto {
 
-    private long userId;
+    private String email;
 
     private String roleName;
 }
