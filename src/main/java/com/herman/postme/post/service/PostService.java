@@ -39,10 +39,7 @@ public class PostService {
                     log.warn("Error has occurred, post with id {} is not found", id);
                     log.debug("Exiting getOnePostById method");
 
-                    return new NotFoundException(
-                            "Post with id " + id + " is not found",
-                            "/posts"
-                    );
+                    return new NotFoundException("Post with id " + id + " is not found");
                 });
 
         log.info("Post was found");

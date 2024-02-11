@@ -11,6 +11,5 @@ public class ErrorResponse  {
     private final int code;
     private final String error;
     private final String description;
-    private final String path;
     private final LocalDateTime time;
 }

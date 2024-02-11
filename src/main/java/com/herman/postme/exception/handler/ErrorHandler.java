@@ -19,7 +19,6 @@ public class ErrorHandler {
                 e.getCode(),
                 e.getError(),
                 e.getDescription(),
-                e.getPath(),
                 e.getTime()
         );
     }
@@ -29,9 +28,8 @@ public class ErrorHandler {
     public ErrorResponse handleError(ConstraintViolationException e) {
         return new ErrorResponse(
                 400,
+                null,
                 e.getMessage(),
-                "",
-                "",
                 LocalDateTime.now()
         );
     }
