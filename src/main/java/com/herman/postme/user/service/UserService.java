@@ -19,4 +19,10 @@ public class UserService {
                 () -> new NotFoundException("User with email " + email + " is not found")
         );
     }
+
+    public User findById(long id) {
+        return repository.findById(id).orElseThrow(
+                () -> new NotFoundException("User with id " + id + " is not found")
+        );
+    }
 }
