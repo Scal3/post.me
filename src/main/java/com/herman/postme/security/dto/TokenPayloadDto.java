@@ -1,4 +1,4 @@
-package com.herman.postme.auth.dto;
+package com.herman.postme.security.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

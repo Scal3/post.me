@@ -1,8 +1,8 @@
-package com.herman.postme.auth.filter;
+package com.herman.postme.security.filter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.herman.postme.auth.dto.TokenPayloadDto;
-import com.herman.postme.auth.util.JWTUtil;
+import com.herman.postme.security.dto.TokenPayloadDto;
+import com.herman.postme.security.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

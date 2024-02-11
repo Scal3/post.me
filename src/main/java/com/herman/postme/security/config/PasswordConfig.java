@@ -1,4 +1,4 @@
-package com.herman.postme.auth.config;
+package com.herman.postme.security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

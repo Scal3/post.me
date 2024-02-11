@@ -1,4 +1,4 @@
-package com.herman.postme.auth.service;
+package com.herman.postme.security.service;
 
 import com.herman.postme.user.entity.User;
 import com.herman.postme.user.repository.UserRepository;
