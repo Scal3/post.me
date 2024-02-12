@@ -43,21 +43,36 @@ public class AuthService {
     @Transactional
     public TokenDto register(RegisterDto dto) {
         try {
+            log.debug("Entering register method");
+
             String encodedPass = passwordEncoder.encode(dto.getPassword());
             dto.setPassword(encodedPass);
 
             modelMapper.typeMap(RegisterDto.class, CreateUserDto.class)
                     .addMapping(RegisterDto::getPassword, CreateUserDto::setPasswordHash);
 
-            UserDto userDto = userService.createUser(modelMapper.map(dto, CreateUserDto.class));
+            CreateUserDto createUserDto = modelMapper.map(dto, CreateUserDto.class);
+
+            log.debug("Mapping from RegisterDto to CreateUserDto: {}", createUserDto);
+
+            UserDto userDto = userService.createUser(createUserDto);
+
+            log.debug("UserService created record in DB and returned UserDto: {}", userDto);
+
             String token = jwtUtil.generateToken(
                     new TokenPayloadDto(userDto.getEmail(), userDto.getRole().getName())
             );
 
+            log.debug("JWTUtil generated Token");
+            log.debug("Returning TokenDto and exiting register method");
+
             return new TokenDto(token);
         } catch (DataIntegrityViolationException exc) {
+            log.warn("DataIntegrityViolationException has occurred " + exc.getMessage());
+
             throw new UserAlreadyExistsException("User with these credentials already exists");
         } catch (Throwable throwable) {
+            log.warn("An unexpected exception has occurred " + throwable.getMessage());
             throwable.printStackTrace();
 
             throw new InternalServerException("Something went wrong");
@@ -66,10 +81,14 @@ public class AuthService {
 
     public TokenDto login(LoginDto dto) {
         try {
+            log.debug("Entering register login");
+
             UsernamePasswordAuthenticationToken authInputToken =
                     new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword());
 
             Authentication authentication = authManager.authenticate(authInputToken);
+
+            log.debug("AuthenticationManager allowed request for LoginDto");
 
             String role = authentication.getAuthorities().stream()
                     .findFirst()
@@ -81,14 +100,20 @@ public class AuthService {
                     new TokenPayloadDto(email, role)
             );
 
+            log.debug("JWTUtil generated Token");
+            log.debug("Returning TokenDto and exiting login method");
+
             return new TokenDto(token);
-        } catch (AuthenticationException authExc){
+        } catch (AuthenticationException exc){
+            log.warn("AuthenticationException has occurred " + exc.getMessage());
+
             throw new UnauthorizedException("Email or password is incorrect");
         } catch (NoSuchElementException exc) {
-            exc.printStackTrace();
+            log.warn("NoSuchElementException has occurred. Probably the problem with role " + exc.getMessage());
 
             throw new InternalServerException("Something went wrong");
         } catch (Throwable throwable) {
+            log.warn("An unexpected exception has occurred " + throwable.getMessage());
             throwable.printStackTrace();
 
             throw new InternalServerException("Something went wrong");
