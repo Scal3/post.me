@@ -5,6 +5,7 @@ import com.herman.postme.auth.dto.RegisterDto;
 import com.herman.postme.auth.dto.TokenDto;
 import com.herman.postme.exception.exceptionimp.InternalServerException;
 import com.herman.postme.exception.exceptionimp.UnauthorizedException;
+import com.herman.postme.exception.exceptionimp.UserAlreadyExistsException;
 import com.herman.postme.security.dto.TokenPayloadDto;
 import com.herman.postme.security.util.JWTUtil;
 import com.herman.postme.user.dto.CreateUserDto;
@@ -13,6 +14,7 @@ import com.herman.postme.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -53,6 +55,8 @@ public class AuthService {
             );
 
             return new TokenDto(token);
+        } catch (DataIntegrityViolationException exc) {
+            throw new UserAlreadyExistsException("User with these credentials already exists");
         } catch (Throwable throwable) {
             throwable.printStackTrace();
 

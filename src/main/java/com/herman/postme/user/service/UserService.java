@@ -10,6 +10,7 @@ import com.herman.postme.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -41,8 +42,7 @@ public class UserService {
         return modelMapper.map(userEntity, UserDto.class);
     }
 
-    public UserDto createUser(CreateUserDto dto) {
-        // Should I check if email or login exist or stay it up to db?
+    public UserDto createUser(CreateUserDto dto) throws DataIntegrityViolationException {
         LocalDateTime createdNow = LocalDateTime.now();
         Role roleEntity = modelMapper.map(roleService.getUserRole(), Role.class);
 
