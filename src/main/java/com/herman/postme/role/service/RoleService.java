@@ -14,9 +14,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RoleService {
 
-    private final String USER_ROLE = "USER";
+    public static final String USER_ROLE = "USER";
 
-    private final String ADMIN_ROLE = "USER";
+    public static final String ADMIN_ROLE = "ADMIN";
 
     private final RoleRepository repository;
 
