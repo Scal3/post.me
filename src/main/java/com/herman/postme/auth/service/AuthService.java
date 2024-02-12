@@ -3,6 +3,7 @@ package com.herman.postme.auth.service;
 import com.herman.postme.auth.dto.LoginDto;
 import com.herman.postme.auth.dto.RegisterDto;
 import com.herman.postme.auth.dto.TokenDto;
+import com.herman.postme.exception.exceptionimp.UnauthorizedException;
 import com.herman.postme.security.dto.TokenPayloadDto;
 import com.herman.postme.security.util.JWTUtil;
 import com.herman.postme.user.dto.CreateUserDto;
@@ -67,7 +68,7 @@ public class AuthService {
 
             return new TokenDto(token);
         } catch (AuthenticationException authExc){
-            throw new RuntimeException("Invalid Login Credentials");
+            throw new UnauthorizedException("Email or password is incorrect");
         }
     }
 }

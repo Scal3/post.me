@@ -1,6 +1,7 @@
 package com.herman.postme.exception.handler;
 
 import com.herman.postme.exception.exceptionimp.NotFoundException;
+import com.herman.postme.exception.exceptionimp.UnauthorizedException;
 import com.herman.postme.exception.response.ErrorResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,17 @@ public class ErrorHandler {
                 400,
                 null,
                 e.getMessage(),
+                LocalDateTime.now()
+        );
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler
+    public ErrorResponse handleError(UnauthorizedException e) {
+        return new ErrorResponse(
+                e.getCode(),
+                e.getError(),
+                e.getDescription(),
                 LocalDateTime.now()
         );
     }
