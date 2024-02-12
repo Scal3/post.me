@@ -37,6 +37,9 @@ public class AuthService {
         String encodedPass = passwordEncoder.encode(dto.getPassword());
         dto.setPassword(encodedPass);
 
+        modelMapper.typeMap(RegisterDto.class, CreateUserDto.class)
+                .addMapping(RegisterDto::getPassword, CreateUserDto::setPasswordHash);
+
         UserDto userDto = userService.createUser(modelMapper.map(dto, CreateUserDto.class));
         String token = jwtUtil.generateToken(
                 new TokenPayloadDto(userDto.getEmail(), userDto.getRole().getName())

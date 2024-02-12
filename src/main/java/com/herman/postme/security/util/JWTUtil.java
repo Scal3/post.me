@@ -16,22 +16,22 @@ import java.time.Period;
 @Component
 public class JWTUtil {
 
-    @Value("jwt_secret")
+    @Value("${jwt.secret}")
     private String secret;
 
-    @Value("jwt_expires")
-    private String tokenExpiresPeriod;
+    @Value("${jwt.expires}")
+    private int tokenExpiresPeriod;
 
-    @Value("jwt_subject")
+    @Value("${jwt.subject}")
     private String tokenSubject;
 
-    @Value("jwt_issuer")
+    @Value("${jwt.issuer}")
     private String tokenIssuer;
 
     public String generateToken(TokenPayloadDto dto)
             throws IllegalArgumentException, JWTCreationException {
         Instant issuedAt = Instant.now();
-        Instant expiresAt = issuedAt.plus(Period.ofDays(Integer.parseInt(tokenExpiresPeriod)));
+        Instant expiresAt = issuedAt.plus(Period.ofDays(tokenExpiresPeriod));
 
         return JWT.create()
                 .withSubject(tokenSubject)
