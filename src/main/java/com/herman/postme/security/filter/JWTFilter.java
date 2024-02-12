@@ -25,7 +25,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
 
-
     @Override
     protected void doFilterInternal(
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain
@@ -38,7 +37,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
             if (jwt.isBlank()) {
                 response.sendError(
-                        HttpServletResponse.SC_BAD_REQUEST,
+                        HttpServletResponse.SC_UNAUTHORIZED,
                         "Invalid JWT Token in Bearer Header"
                 );
 
@@ -62,7 +61,9 @@ public class JWTFilter extends OncePerRequestFilter {
                 }
 
             } catch (JWTVerificationException e){
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid JWT Token");
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
+
+                return;
             }
         }
 

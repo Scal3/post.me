@@ -2,8 +2,8 @@ package com.herman.postme.exception.exceptionimp;
 
 import org.springframework.http.HttpStatus;
 
-public class UserAlreadyExistsException extends BaseAppException {
-    public UserAlreadyExistsException(String reason) {
+public class ConflictException extends BaseAppException {
+    public ConflictException(String reason) {
         super(HttpStatus.CONFLICT, reason);
     }
 }

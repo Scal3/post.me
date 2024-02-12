@@ -3,7 +3,7 @@ package com.herman.postme.exception.handler;
 import com.herman.postme.exception.exceptionimp.InternalServerException;
 import com.herman.postme.exception.exceptionimp.NotFoundException;
 import com.herman.postme.exception.exceptionimp.UnauthorizedException;
-import com.herman.postme.exception.exceptionimp.UserAlreadyExistsException;
+import com.herman.postme.exception.exceptionimp.ConflictException;
 import com.herman.postme.exception.response.ErrorResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.http.HttpStatus;
@@ -61,7 +61,7 @@ public class ErrorHandler {
 
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler
-    public ErrorResponse handleError(UserAlreadyExistsException e) {
+    public ErrorResponse handleError(ConflictException e) {
         return new ErrorResponse(
                 e.getCode(),
                 e.getError(),
