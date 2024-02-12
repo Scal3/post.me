@@ -1,5 +1,6 @@
 package com.herman.postme.exception.handler;
 
+import com.herman.postme.exception.exceptionimp.InternalServerException;
 import com.herman.postme.exception.exceptionimp.NotFoundException;
 import com.herman.postme.exception.exceptionimp.UnauthorizedException;
 import com.herman.postme.exception.response.ErrorResponse;
@@ -38,6 +39,17 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler
     public ErrorResponse handleError(UnauthorizedException e) {
+        return new ErrorResponse(
+                e.getCode(),
+                e.getError(),
+                e.getDescription(),
+                LocalDateTime.now()
+        );
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler
+    public ErrorResponse handleError(InternalServerException e) {
         return new ErrorResponse(
                 e.getCode(),
                 e.getError(),
