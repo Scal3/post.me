@@ -81,7 +81,7 @@ public class AuthService {
 
     public TokenDto login(LoginDto dto) {
         try {
-            log.debug("Entering register login");
+            log.debug("Entering login method");
 
             UsernamePasswordAuthenticationToken authInputToken =
                     new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword());
