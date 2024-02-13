@@ -1,15 +1,17 @@
 package com.herman.postme.post.dto;
 
+import com.herman.postme.comment.entity.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostDto {
+public class PostDtoWithComments {
 
     private long id;
 
@@ -23,5 +25,5 @@ public class PostDto {
 
     private LocalDateTime updatedAt;
 
-    private int commentsQuantity;
+    private List<Comment> comments;
 }

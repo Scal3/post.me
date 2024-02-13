@@ -1,7 +1,9 @@
 package com.herman.postme.post.controller;
 
+import com.herman.postme.post.dto.CreatePostDto;
 import com.herman.postme.post.dto.PostDto;
 import com.herman.postme.post.entity.Post;
+import com.herman.postme.post.enums.PostSortOrder;
 import com.herman.postme.post.service.PostService;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -18,29 +20,34 @@ import java.util.List;
 @Slf4j
 @Validated
 @RestController
-@RequestMapping("/posts")
+@RequestMapping("/api/posts")
 @RequiredArgsConstructor
 public class PostController {
 
     private final PostService postService;
 
+    // No authentication required
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public List<Post> getAllPosts(
+    public List<PostDto> getAllPosts(
             @RequestParam(defaultValue = "0") @PositiveOrZero int page,
-            @RequestParam(defaultValue = "20") @Positive int limit
+            @RequestParam(defaultValue = "15") @Positive int limit,
+            @RequestParam(defaultValue = "DATE_FRESHER") PostSortOrder sortBy
     ) {
         log.debug("Entering getAllPosts method");
-        log.debug("Got {} value as page argument", page);
-        log.debug("Got {} value as limit argument", limit);
+        log.debug(
+                "Got {} value as page argument, " +
+                "{} value as limit argument, " +
+                "{} value as sortBy argument", page, limit, sortBy);
 
-        List<Post> posts = postService.getAllPosts(page, limit);
+        List<PostDto> posts = postService.getAllPosts(page, limit, sortBy);
 
         log.debug("Exiting getAllPosts method");
 
         return posts;
     }
 
+    // No authentication required
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public Post getOnePostById(@Valid @PathVariable @Positive long id) {
@@ -54,11 +61,12 @@ public class PostController {
         return post;
     }
 
+    // Authorization USER required
     @PostMapping(
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public Post createPost(@Valid @RequestBody PostDto dto) {
+    public Post createPost(@Valid @RequestBody CreatePostDto dto) {
         log.debug("Entering createPost method");
         log.debug("Got {} as dto argument", dto);
 
