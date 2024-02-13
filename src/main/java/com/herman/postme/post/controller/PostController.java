@@ -2,6 +2,7 @@ package com.herman.postme.post.controller;
 
 import com.herman.postme.post.dto.CreatePostDto;
 import com.herman.postme.post.dto.PostDto;
+import com.herman.postme.post.dto.PostDtoWithComments;
 import com.herman.postme.post.entity.Post;
 import com.herman.postme.post.enums.PostSortOrder;
 import com.herman.postme.post.service.PostService;
@@ -50,11 +51,11 @@ public class PostController {
     // No authentication required
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public Post getOnePostById(@Valid @PathVariable @Positive long id) {
+    public PostDtoWithComments getOnePostById(@Valid @PathVariable @Positive long id) {
         log.debug("Entering getOnePostById method");
         log.debug("Got {} value as id argument", id);
 
-        Post post = postService.getOnePostById(id);
+        PostDtoWithComments post = postService.getOnePostById(id);
 
         log.debug("Exiting getOnePostById method");
 

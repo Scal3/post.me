@@ -21,27 +21,29 @@ public class CommentService {
     private final PostService postService;
 
     public Comment createComment(CommentDto dto) {
-        log.debug("Entering createComment method");
-        log.debug("Got {} as dto argument", dto);
+//        log.debug("Entering createComment method");
+//        log.debug("Got {} as dto argument", dto);
+//
+//        Post post = postService.getOnePostById(dto.getPostId());
+//
+//        log.debug("Post by postId {} from CommentDto was found", dto.getPostId());
+//
+//        Comment comment = new Comment(
+//                dto.getUsername(),
+//                dto.getText(),
+//                LocalDateTime.now(),
+//                post
+//        );
+//
+//        log.debug("Comment entity was build {}", comment);
+//
+//        Comment createdComment = commentRepository.save(comment);
+//
+//        log.debug("Comment entity was saved into DB");
+//        log.debug("Exiting createComment method");
+//
+//        return createdComment;
 
-        Post post = postService.getOnePostById(dto.getPostId());
-
-        log.debug("Post by postId {} from CommentDto was found", dto.getPostId());
-
-        Comment comment = new Comment(
-                dto.getUsername(),
-                dto.getText(),
-                LocalDateTime.now(),
-                post
-        );
-
-        log.debug("Comment entity was build {}", comment);
-
-        Comment createdComment = commentRepository.save(comment);
-
-        log.debug("Comment entity was saved into DB");
-        log.debug("Exiting createComment method");
-
-        return createdComment;
+        return null;
     }
 }

@@ -4,6 +4,7 @@ import com.herman.postme.exception.exceptionimp.InternalServerException;
 import com.herman.postme.exception.exceptionimp.NotFoundException;
 import com.herman.postme.post.dto.CreatePostDto;
 import com.herman.postme.post.dto.PostDto;
+import com.herman.postme.post.dto.PostDtoWithComments;
 import com.herman.postme.post.entity.Post;
 import com.herman.postme.post.enums.PostSortOrder;
 import com.herman.postme.post.mapper.PostMapper;
@@ -52,7 +53,7 @@ public class PostService {
         }
     }
 
-    public Post getOnePostById(long id) {
+    public PostDtoWithComments getOnePostById(long id) {
         log.debug("Entering getOnePostById method");
         log.debug("Got {} value as id argument", id);
 
@@ -64,10 +65,21 @@ public class PostService {
                     return new NotFoundException("Post with id " + id + " is not found");
                 });
 
-        log.info("Post was found");
-        log.info("Exiting getOnePostById method");
+        log.debug("Post was found");
 
-        return post;
+        try {
+            PostDtoWithComments postDto = modelMapper.map(post, PostDtoWithComments.class);
+
+            log.debug("Mapping from List<Post> to List<PostDto>: {}", postDto);
+            log.debug("Exiting getOnePostById method");
+
+            return postDto;
+        } catch (Throwable throwable) {
+            log.warn("An unexpected exception has occurred " + throwable.getMessage());
+            throwable.printStackTrace();
+
+            throw new InternalServerException("Something went wrong");
+        }
     }
 
     public Post createPost(CreatePostDto dto) {
