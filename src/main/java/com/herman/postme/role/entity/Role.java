@@ -3,6 +3,7 @@ package com.herman.postme.role.entity;
 import com.herman.postme.user.entity.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.List;
@@ -20,6 +21,7 @@ public class Role {
     @Column(nullable = false, unique = true, length = 50)
     private String name;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<User> users;
 }

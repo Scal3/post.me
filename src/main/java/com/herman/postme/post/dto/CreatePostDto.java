@@ -15,12 +15,7 @@ public class CreatePostDto {
 
     @NotNull
     @NotBlank
-    @Size(min = 1, max = 55)
-    private String username;
-
-    @NotNull
-    @NotBlank
-    @Size(min = 1, max = 100)
+    @Size(min = 2, max = 100)
     private String heading;
 
     @NotNull

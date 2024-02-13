@@ -1,5 +1,6 @@
 package com.herman.postme.post.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,5 +24,8 @@ public class PostDto {
 
     private LocalDateTime updatedAt;
 
-    private int commentsQuantity;
+    @JsonProperty("isUpdated")
+    public boolean getIsUpdated() {
+        return isUpdated;
+    }
 }

@@ -1,7 +1,7 @@
 package com.herman.postme.post.mapper;
 
 import com.herman.postme.comment.entity.Comment;
-import com.herman.postme.post.dto.PostDto;
+import com.herman.postme.post.dto.PostDtoWithCommentQuantity;
 import com.herman.postme.post.entity.Post;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -27,7 +27,7 @@ public class PostMapper {
         this.modelMapper.addConverter(CommentsQuantityConverter);
     }
 
-    public List<PostDto> mapPostListToPostDtoList(List<Post> posts) {
-        return this.modelMapper.map(posts, new TypeToken<List<PostDto>>() {}.getType());
+    public List<PostDtoWithCommentQuantity> mapPostListToPostDtoList(List<Post> posts) {
+        return this.modelMapper.map(posts, new TypeToken<List<PostDtoWithCommentQuantity>>() {}.getType());
     }
 }

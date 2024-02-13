@@ -4,19 +4,26 @@ import com.herman.postme.exception.exceptionimp.InternalServerException;
 import com.herman.postme.exception.exceptionimp.NotFoundException;
 import com.herman.postme.post.dto.CreatePostDto;
 import com.herman.postme.post.dto.PostDto;
+import com.herman.postme.post.dto.PostDtoWithCommentQuantity;
 import com.herman.postme.post.dto.PostDtoWithComments;
 import com.herman.postme.post.entity.Post;
 import com.herman.postme.post.enums.PostSortOrder;
 import com.herman.postme.post.mapper.PostMapper;
 import com.herman.postme.post.repository.PostRepository;
+import com.herman.postme.user.dto.UserDto;
+import com.herman.postme.user.entity.User;
+import com.herman.postme.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -26,11 +33,13 @@ public class PostService {
 
     private final PostRepository postRepository;
 
+    private final UserService userService;
+
     private final ModelMapper modelMapper;
 
     private final PostMapper postMapper;
 
-    public List<PostDto> getAllPosts(int page, int limit, PostSortOrder sortBy) {
+    public List<PostDtoWithCommentQuantity> getAllPosts(int page, int limit, PostSortOrder sortBy) {
         try {
             log.debug("Entering getAllPosts method");
             log.debug("page value {}, limit value {}, sortBy value {}", page, limit, sortBy);
@@ -39,9 +48,9 @@ public class PostService {
 
             log.debug("DB returned result");
 
-            List<PostDto> postDtos = postMapper.mapPostListToPostDtoList(posts);
+            List<PostDtoWithCommentQuantity> postDtos = postMapper.mapPostListToPostDtoList(posts);
 
-            log.debug("Mapping from List<Post> to List<PostDto>: {}", postDtos);
+            log.debug("Mapping from List<Post> to List<PostDtoWithCommentQuantity>: {}", postDtos);
             log.debug("Exiting getAllPosts method");
 
             return postDtos;
@@ -82,20 +91,48 @@ public class PostService {
         }
     }
 
-    public Post createPost(CreatePostDto dto) {
-        log.debug("Entering createPost method");
-        log.debug("Got {} as dto argument", dto);
+    @Transactional
+    public PostDto createPost(CreatePostDto dto) {
+        try {
+            log.debug("Entering createPost method");
+            log.debug("Got {} as dto argument", dto);
 
-        Post post = new Post();
+            Post postEntity = modelMapper.map(dto, Post.class);
 
-        log.debug("Post entity was build {}", post);
+            log.debug("Mapping from CreatePostDto to Post entity {}", postEntity);
 
-        Post createdPost = postRepository.save(post);
+            String userEmail = (String) SecurityContextHolder.getContext()
+                    .getAuthentication()
+                    .getPrincipal();
 
-        log.debug("Post entity was saved into DB");
-        log.debug("Exiting createPost method");
+            log.debug("Getting user email from SecurityContextHolder {}", userEmail);
 
-        return createdPost;
+            UserDto userDto = userService.findByEmail(userEmail);
+
+            log.debug("Getting UserDto by email from UserService {}", userDto);
+
+            User userEntity = modelMapper.map(userDto, User.class);
+
+            log.debug("Mapping UserDto to User entity {}", userEntity);
+
+            postEntity.setUser(userEntity);
+            postEntity.setCreatedAt(LocalDateTime.now());
+
+            PostDto postDtoResult = modelMapper.map(postRepository.save(postEntity), PostDto.class);
+
+            log.debug("Mapping from Post entity to PostDto {}", postDtoResult);
+            log.debug("Post entity was saved into DB");
+            log.debug("Exiting createPost method");
+
+            return postDtoResult;
+        } catch (NotFoundException exc) {
+            throw new NotFoundException(exc.getDescription());
+        } catch (Throwable throwable) {
+            log.warn("An unexpected exception has occurred " + throwable.getMessage());
+            throwable.printStackTrace();
+
+            throw new InternalServerException("Something went wrong");
+        }
     }
 
     private List<Post> getPostsBySort(int page, int limit, PostSortOrder sortBy) {
@@ -107,14 +144,15 @@ public class PostService {
                 PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "createdAt"));
 
         switch (sortBy) {
-            case DATE_FRESHER:
-                posts =  postRepository.findAll(pageableWithFresherSort).getContent();
             case DATE_OLDER:
                 posts =  postRepository.findAll(pageableWithOlderSort).getContent();
+                break;
             case COMMENTS_MORE:
                 posts = postRepository.findAllOrderByCommentsDesc(pageable);
+                break;
             case COMMENTS_LESS:
                 posts = postRepository.findAllOrderByCommentsAsc(pageable);
+                break;
             default:
                 posts = postRepository.findAll(pageableWithFresherSort).getContent();
         }
