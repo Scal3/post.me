@@ -52,12 +52,7 @@ public class PostService {
         log.debug("Entering createPost method");
         log.debug("Got {} as dto argument", dto);
 
-        Post post = new Post(
-                dto.getUsername(),
-                dto.getHeading(),
-                dto.getText(),
-                LocalDateTime.now()
-        );
+        Post post = new Post();
 
         log.debug("Post entity was build {}", post);
 
