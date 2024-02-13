@@ -3,7 +3,6 @@ package com.herman.postme.post.mapper;
 import com.herman.postme.comment.entity.Comment;
 import com.herman.postme.post.dto.PostDto;
 import com.herman.postme.post.entity.Post;
-import lombok.RequiredArgsConstructor;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 public class PostMapper {
 
     private final ModelMapper modelMapper;

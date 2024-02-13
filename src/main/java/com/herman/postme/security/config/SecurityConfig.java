@@ -1,5 +1,6 @@
 package com.herman.postme.security.config;
 
+import com.herman.postme.role.service.RoleService;
 import com.herman.postme.security.filter.JWTFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -31,9 +32,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors()
                 .and()
                 .authorizeHttpRequests()
-                .antMatchers("/**").permitAll()
-//                .antMatchers("/api/auth/**").permitAll()
-//                .antMatchers("/posts/**").hasAuthority(RoleService.USER_ROLE)
+                .antMatchers("/api/auth/**").permitAll()
+                .antMatchers("/api/free/**").permitAll()
+                .antMatchers("/api/access/**").hasAuthority(RoleService.USER_ROLE)
+                .antMatchers("/api/secured/**").hasAuthority(RoleService.ADMIN_ROLE)
                 .and()
                 .userDetailsService(userDetailsService)
                 .exceptionHandling()
