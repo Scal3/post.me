@@ -40,18 +40,44 @@ public class PostService {
     public List<PostDtoWithCommentQuantity> getAllPosts(int page, int limit, PostSortOrder sortBy) {
         try {
             log.debug("Entering getAllPosts method");
-            log.debug("page value {}, limit value {}, sortBy value {}", page, limit, sortBy);
+            log.debug("Got page value {}, limit value {}, sortBy value {}", page, limit, sortBy);
 
             List<Post> posts = getAllPostsBySort(page, limit, sortBy);
-
             log.debug("DB returned result");
 
             List<PostDtoWithCommentQuantity> postDtos = postMapper.mapPostListToPostDtoList(posts);
-
             log.debug("Mapping from List<Post> to List<PostDtoWithCommentQuantity>: {}", postDtos);
             log.debug("Exiting getAllPosts method");
 
             return postDtos;
+        } catch (Throwable throwable) {
+            log.warn("An unexpected exception has occurred " + throwable.getMessage());
+            log.debug("Exiting getAllPosts method");
+            throwable.printStackTrace();
+
+            throw new InternalServerException("Something went wrong");
+        }
+    }
+
+    public PostDtoWithComments getOnePostById(long id) {
+        try {
+            log.debug("Entering getOnePostById method");
+            log.debug("Got {} value as id argument", id);
+
+            Post post = postRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException("Post with id " + id + " is not found"));
+            log.debug("Post was found");
+
+            PostDtoWithComments postDto = modelMapper.map(post, PostDtoWithComments.class);
+            log.debug("Mapping from Post to PostDtoWithComments: {}", postDto);
+            log.debug("Exiting getOnePostById method");
+
+            return postDto;
+        } catch (NotFoundException exc) {
+            log.warn("Error has occurred {}", exc.getDescription());
+            log.debug("Exiting getOnePostById method");
+
+            throw new NotFoundException(exc.getDescription());
         } catch (Throwable throwable) {
             log.warn("An unexpected exception has occurred " + throwable.getMessage());
             log.debug("Exiting getOnePostById method");
@@ -61,30 +87,36 @@ public class PostService {
         }
     }
 
-    public PostDtoWithComments getOnePostById(long id) {
-        log.debug("Entering getOnePostById method");
-        log.debug("Got {} value as id argument", id);
-
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("Error has occurred, post with id {} is not found", id);
-                    log.debug("Exiting getOnePostById method");
-
-                    return new NotFoundException("Post with id " + id + " is not found");
-                });
-
-        log.debug("Post was found");
-
+    public List<PostDtoWithCommentQuantity> getUsersPostById(
+            long userId, int page, int limit, PostSortOrder sortBy
+    ) {
         try {
-            PostDtoWithComments postDto = modelMapper.map(post, PostDtoWithComments.class);
+            log.debug("Entering getUsersPostById method");
+            log.debug(
+                    "Got userId value {}, page value {}, limit value {}, sortBy value {}",
+                    userId, page, limit, sortBy
+            );
 
-            log.debug("Mapping from List<Post> to List<PostDto>: {}", postDto);
-            log.debug("Exiting getOnePostById method");
+            userService.findById(userId);
+            log.debug("User with id {} was found", userId);
 
-            return postDto;
+            List<Post> usersPosts = getUsersPostsBySort(userId, page, limit, sortBy);
+            log.debug("DB returned result");
+
+            List<PostDtoWithCommentQuantity> postDtos =
+                    postMapper.mapPostListToPostDtoList(usersPosts);
+            log.debug("Mapping from List<Post> to List<PostDtoWithCommentQuantity>: {}", postDtos);
+            log.debug("Exiting getUsersPostById method");
+
+            return postDtos;
+        } catch (NotFoundException exc) {
+            log.warn("Error has occurred {}", exc.getDescription());
+            log.debug("Exiting getUsersPostById method");
+
+            throw new NotFoundException(exc.getDescription());
         } catch (Throwable throwable) {
-            log.warn("An unexpected exception has occurred " + throwable.getMessage());
-            log.debug("Exiting getOnePostById method");
+            log.warn("An unexpected exception has occurred {}", throwable.getMessage());
+            log.debug("Exiting getUsersPostById method");
             throwable.printStackTrace();
 
             throw new InternalServerException("Something went wrong");
@@ -98,35 +130,31 @@ public class PostService {
             log.debug("Got {} as dto argument", dto);
 
             Post postEntity = modelMapper.map(dto, Post.class);
-
             log.debug("Mapping from CreatePostDto to Post entity {}", postEntity);
 
             String userEmail = (String) SecurityContextHolder.getContext()
                     .getAuthentication()
                     .getPrincipal();
-
             log.debug("Getting user email from SecurityContextHolder {}", userEmail);
 
             UserDto userDto = userService.findByEmail(userEmail);
-
-            log.debug("Getting UserDto by email from UserService {}", userDto);
+            log.debug("User was found by email from UserService {}", userDto);
 
             User userEntity = modelMapper.map(userDto, User.class);
-
             log.debug("Mapping UserDto to User entity {}", userEntity);
 
             postEntity.setUser(userEntity);
             postEntity.setCreatedAt(LocalDateTime.now());
 
-            PostDto postDtoResult = modelMapper.map(postRepository.save(postEntity), PostDto.class);
-
+            Post savedPost = postRepository.save(postEntity);
+            PostDto postDtoResult = modelMapper.map(savedPost, PostDto.class);
             log.debug("Mapping from Post entity to PostDto {}", postDtoResult);
             log.debug("Post entity was saved into DB");
             log.debug("Exiting createPost method");
 
             return postDtoResult;
         } catch (NotFoundException exc) {
-            log.warn("User with email is not found");
+            log.warn("Error has occurred {}", exc.getDescription());
             log.debug("Exiting createPost method");
 
             throw new NotFoundException(exc.getDescription());
@@ -168,7 +196,6 @@ public class PostService {
 
             Post updatedEntity = postRepository.save(postEntity);
             PostDto postDtoResult = modelMapper.map(updatedEntity, PostDto.class);
-
             log.debug("Mapping from Post entity to PostDto {}", postDtoResult);
             log.debug("Post entity was updated");
             log.debug("Exiting updatePost method");
@@ -216,7 +243,6 @@ public class PostService {
             }
 
             postRepository.deleteById(id);
-
             log.debug("Post entity was deleted");
             log.debug("Exiting deletePost method");
         } catch (NotFoundException exc) {
@@ -232,43 +258,6 @@ public class PostService {
         } catch (Throwable throwable) {
             log.warn("An unexpected exception has occurred " + throwable.getMessage());
             log.debug("Exiting deletePost method");
-            throwable.printStackTrace();
-
-            throw new InternalServerException("Something went wrong");
-        }
-    }
-
-    public List<PostDtoWithCommentQuantity> getUsersPostById(
-            long userId, int page, int limit, PostSortOrder sortBy
-    ) {
-        try {
-            log.debug("Entering getUsersPostById method");
-            log.debug(
-                    "userId value {}, page value {}, limit value {}, sortBy value {}",
-                    userId, page, limit, sortBy
-            );
-
-            userService.findById(userId);
-
-            List<Post> usersPosts = getUsersPostsBySort(userId, page, limit, sortBy);
-
-            log.debug("DB returned result");
-
-            List<PostDtoWithCommentQuantity> postDtos =
-                    postMapper.mapPostListToPostDtoList(usersPosts);
-
-            log.debug("Mapping from List<Post> to List<PostDtoWithCommentQuantity>: {}", postDtos);
-            log.debug("Exiting getUsersPostById method");
-
-            return postDtos;
-        } catch (NotFoundException exc) {
-            log.warn("User with id {} is not found", userId);
-            log.debug("Exiting getUsersPostById method");
-
-            throw new NotFoundException(exc.getDescription());
-        } catch (Throwable throwable) {
-            log.warn("An unexpected exception has occurred {}", throwable.getMessage());
-            log.debug("Exiting getUsersPostById method");
             throwable.printStackTrace();
 
             throw new InternalServerException("Something went wrong");
