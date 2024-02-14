@@ -155,7 +155,7 @@ public class PostService {
             log.debug("User email was found in SecurityContextHolder");
 
             UserDto userDto = userService.findByEmail(userEmail);
-            log.debug("UserDto was found by email");
+            log.debug("User was found by email");
 
             if (postEntity.getUser().getId() != userDto.getId()) {
                 throw new ForbiddenException("You are not authorized to update this post");
@@ -187,6 +187,51 @@ public class PostService {
         } catch (Throwable throwable) {
             log.warn("An unexpected exception has occurred " + throwable.getMessage());
             log.debug("Exiting updatePost method");
+            throwable.printStackTrace();
+
+            throw new InternalServerException("Something went wrong");
+        }
+    }
+
+    @Transactional
+    public void deletePost(long id) {
+        try {
+            log.debug("Entering deletePost method");
+            log.debug("Got {} as id argument", id);
+
+            Post postEntity = postRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException("Post with id " + id + " is not found"));
+            log.debug("Post entity was found by id {}", id);
+
+            String userEmail = (String) SecurityContextHolder.getContext()
+                    .getAuthentication()
+                    .getPrincipal();
+            log.debug("User email was found in SecurityContextHolder");
+
+            UserDto userDto = userService.findByEmail(userEmail);
+            log.debug("User was found by email");
+
+            if (postEntity.getUser().getId() != userDto.getId()) {
+                throw new ForbiddenException("You are not authorized to delete this post");
+            }
+
+            postRepository.deleteById(id);
+
+            log.debug("Post entity was deleted");
+            log.debug("Exiting deletePost method");
+        } catch (NotFoundException exc) {
+            log.warn("Error has occurred {}", exc.getDescription());
+            log.debug("Exiting deletePost method");
+
+            throw new NotFoundException(exc.getDescription());
+        } catch (ForbiddenException exc) {
+            log.warn("Error has occurred {}", exc.getDescription());
+            log.debug("Exiting deletePost method");
+
+            throw new ForbiddenException(exc.getDescription());
+        } catch (Throwable throwable) {
+            log.warn("An unexpected exception has occurred " + throwable.getMessage());
+            log.debug("Exiting deletePost method");
             throwable.printStackTrace();
 
             throw new InternalServerException("Something went wrong");

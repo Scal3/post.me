@@ -8,11 +8,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 
 @Slf4j
+@Validated
 @RestController
 @RequestMapping("/api/access/posts")
 @RequiredArgsConstructor
@@ -48,5 +51,16 @@ public class PostControllerAccess {
         log.debug("Exiting updatePost method");
 
         return post;
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletePost(@PathVariable @Positive long id) {
+        log.debug("Entering deletePost method");
+        log.debug("Got {} as path variable", id);
+
+        postService.deletePost(id);
+
+        log.debug("Exiting deletePost method");
     }
 }
