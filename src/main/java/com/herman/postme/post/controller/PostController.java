@@ -4,7 +4,6 @@ import com.herman.postme.post.dto.PostDtoWithCommentQuantity;
 import com.herman.postme.post.dto.PostDtoWithComments;
 import com.herman.postme.post.enums.PostSortOrder;
 import com.herman.postme.post.service.PostService;
-import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +46,7 @@ public class PostController {
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public PostDtoWithComments getOnePostById(@Valid @PathVariable @Positive long id) {
+    public PostDtoWithComments getOnePostById(@PathVariable @Positive long id) {
         log.debug("Entering getOnePostById method");
         log.debug("Got {} value as id argument", id);
 
@@ -56,5 +55,24 @@ public class PostController {
         log.debug("Exiting getOnePostById method");
 
         return post;
+    }
+
+    @GetMapping(value = "/users/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public List<PostDtoWithCommentQuantity> getUsersPostById(
+            @PathVariable @Positive long userId,
+            @RequestParam(defaultValue = "0") @PositiveOrZero int page,
+            @RequestParam(defaultValue = "15") @Positive int limit,
+            @RequestParam(defaultValue = "DATE_FRESHER") PostSortOrder sortBy
+    ) {
+        log.debug("Entering getUsersPostById method");
+        log.debug("Got {} value as userId argument", userId);
+
+        List<PostDtoWithCommentQuantity> posts =
+                postService.getUsersPostById(userId, page, limit, sortBy);
+
+        log.debug("Exiting getUsersPostById method");
+
+        return posts;
     }
 }

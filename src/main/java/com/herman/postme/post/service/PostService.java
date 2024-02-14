@@ -44,7 +44,7 @@ public class PostService {
             log.debug("Entering getAllPosts method");
             log.debug("page value {}, limit value {}, sortBy value {}", page, limit, sortBy);
 
-            List<Post> posts = getPostsBySort(page, limit, sortBy);
+            List<Post> posts = getAllPostsBySort(page, limit, sortBy);
 
             log.debug("DB returned result");
 
@@ -56,6 +56,7 @@ public class PostService {
             return postDtos;
         } catch (Throwable throwable) {
             log.warn("An unexpected exception has occurred " + throwable.getMessage());
+            log.debug("Exiting getOnePostById method");
             throwable.printStackTrace();
 
             throw new InternalServerException("Something went wrong");
@@ -85,6 +86,7 @@ public class PostService {
             return postDto;
         } catch (Throwable throwable) {
             log.warn("An unexpected exception has occurred " + throwable.getMessage());
+            log.debug("Exiting getOnePostById method");
             throwable.printStackTrace();
 
             throw new InternalServerException("Something went wrong");
@@ -126,16 +128,57 @@ public class PostService {
 
             return postDtoResult;
         } catch (NotFoundException exc) {
+            log.warn("User with email is not found");
+            log.debug("Exiting createPost method");
+
             throw new NotFoundException(exc.getDescription());
         } catch (Throwable throwable) {
             log.warn("An unexpected exception has occurred " + throwable.getMessage());
+            log.debug("Exiting createPost method");
             throwable.printStackTrace();
 
             throw new InternalServerException("Something went wrong");
         }
     }
 
-    private List<Post> getPostsBySort(int page, int limit, PostSortOrder sortBy) {
+    public List<PostDtoWithCommentQuantity> getUsersPostById(
+            long userId, int page, int limit, PostSortOrder sortBy
+    ) {
+        try {
+            log.debug("Entering getUsersPostById method");
+            log.debug(
+                    "userId value {}, page value {}, limit value {}, sortBy value {}",
+                    userId, page, limit, sortBy
+            );
+
+            userService.findById(userId);
+
+            List<Post> usersPosts = getUsersPostsBySort(userId, page, limit, sortBy);
+
+            log.debug("DB returned result");
+
+            List<PostDtoWithCommentQuantity> postDtos =
+                    postMapper.mapPostListToPostDtoList(usersPosts);
+
+            log.debug("Mapping from List<Post> to List<PostDtoWithCommentQuantity>: {}", postDtos);
+            log.debug("Exiting getUsersPostById method");
+
+            return postDtos;
+        } catch (NotFoundException exc) {
+            log.warn("User with id {} is not found", userId);
+            log.debug("Exiting getUsersPostById method");
+
+            throw new NotFoundException(exc.getDescription());
+        } catch (Throwable throwable) {
+            log.warn("An unexpected exception has occurred {}", throwable.getMessage());
+            log.debug("Exiting getUsersPostById method");
+            throwable.printStackTrace();
+
+            throw new InternalServerException("Something went wrong");
+        }
+    }
+
+    private List<Post> getAllPostsBySort(int page, int limit, PostSortOrder sortBy) {
         List<Post> posts;
         Pageable pageable = PageRequest.of(page, limit);
         Pageable pageableWithFresherSort =
@@ -145,7 +188,7 @@ public class PostService {
 
         switch (sortBy) {
             case DATE_OLDER:
-                posts =  postRepository.findAll(pageableWithOlderSort).getContent();
+                posts = postRepository.findAll(pageableWithOlderSort).getContent();
                 break;
             case COMMENTS_MORE:
                 posts = postRepository.findAllOrderByCommentsDesc(pageable);
@@ -155,6 +198,31 @@ public class PostService {
                 break;
             default:
                 posts = postRepository.findAll(pageableWithFresherSort).getContent();
+        }
+
+        return posts;
+    }
+
+    private List<Post> getUsersPostsBySort(long userId, int page, int limit, PostSortOrder sortBy) {
+        List<Post> posts;
+        Pageable pageable = PageRequest.of(page, limit);
+        Pageable pageableWithFresherSort =
+                PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageableWithOlderSort =
+                PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "createdAt"));
+
+        switch (sortBy) {
+            case DATE_OLDER:
+                posts = postRepository.findAllByUserId(userId, pageableWithOlderSort);
+                break;
+            case COMMENTS_MORE:
+                posts = postRepository.findAllByUserIdOrderByCommentCountDesc(userId, pageable);
+                break;
+            case COMMENTS_LESS:
+                posts = postRepository.findAllByUserIdOrderByCommentCountAsc(userId, pageable);
+                break;
+            default:
+                posts = postRepository.findAllByUserId(userId, pageableWithFresherSort);
         }
 
         return posts;
