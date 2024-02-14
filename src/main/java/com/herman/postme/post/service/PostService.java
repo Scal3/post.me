@@ -1,11 +1,9 @@
 package com.herman.postme.post.service;
 
+import com.herman.postme.exception.exceptionimp.ForbiddenException;
 import com.herman.postme.exception.exceptionimp.InternalServerException;
 import com.herman.postme.exception.exceptionimp.NotFoundException;
-import com.herman.postme.post.dto.CreatePostDto;
-import com.herman.postme.post.dto.PostDto;
-import com.herman.postme.post.dto.PostDtoWithCommentQuantity;
-import com.herman.postme.post.dto.PostDtoWithComments;
+import com.herman.postme.post.dto.*;
 import com.herman.postme.post.entity.Post;
 import com.herman.postme.post.enums.PostSortOrder;
 import com.herman.postme.post.mapper.PostMapper;
@@ -135,6 +133,60 @@ public class PostService {
         } catch (Throwable throwable) {
             log.warn("An unexpected exception has occurred " + throwable.getMessage());
             log.debug("Exiting createPost method");
+            throwable.printStackTrace();
+
+            throw new InternalServerException("Something went wrong");
+        }
+    }
+
+    @Transactional
+    public PostDto updatePost(UpdatePostDto dto) {
+        try {
+            log.debug("Entering updatePost method");
+            log.debug("Got {} as dto argument", dto);
+
+            Post postEntity = postRepository.findById(dto.getId())
+                    .orElseThrow(() -> new NotFoundException("Post with id " + dto.getId() + " is not found"));
+            log.debug("Post entity was found by UpdatePostDto id {}", dto.getId());
+
+            String userEmail = (String) SecurityContextHolder.getContext()
+                    .getAuthentication()
+                    .getPrincipal();
+            log.debug("User email was found in SecurityContextHolder");
+
+            UserDto userDto = userService.findByEmail(userEmail);
+            log.debug("UserDto was found by email");
+
+            if (postEntity.getUser().getId() != userDto.getId()) {
+                throw new ForbiddenException("You are not authorized to update this post");
+            }
+
+            postEntity.setUpdated(true);
+            postEntity.setUpdatedAt(LocalDateTime.now());
+            postEntity.setHeading(dto.getHeading());
+            postEntity.setText(dto.getText());
+
+            Post updatedEntity = postRepository.save(postEntity);
+            PostDto postDtoResult = modelMapper.map(updatedEntity, PostDto.class);
+
+            log.debug("Mapping from Post entity to PostDto {}", postDtoResult);
+            log.debug("Post entity was updated");
+            log.debug("Exiting updatePost method");
+
+            return postDtoResult;
+        } catch (NotFoundException exc) {
+            log.warn("Error has occurred {}", exc.getDescription());
+            log.debug("Exiting updatePost method");
+
+            throw new NotFoundException(exc.getDescription());
+        } catch (ForbiddenException exc) {
+            log.warn("Error has occurred {}", exc.getDescription());
+            log.debug("Exiting updatePost method");
+
+            throw new ForbiddenException(exc.getDescription());
+        } catch (Throwable throwable) {
+            log.warn("An unexpected exception has occurred " + throwable.getMessage());
+            log.debug("Exiting updatePost method");
             throwable.printStackTrace();
 
             throw new InternalServerException("Something went wrong");
