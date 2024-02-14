@@ -67,6 +67,11 @@ public class PostController {
     ) {
         log.debug("Entering getUsersPostById method");
         log.debug("Got {} value as userId argument", userId);
+        log.debug(
+                "Got {} value as userId argument" +
+                "{} value as page argument, " +
+                "{} value as limit argument, " +
+                "{} value as sortBy argument", userId, page, limit, sortBy);
 
         List<PostDtoWithCommentQuantity> posts =
                 postService.getUsersPostById(userId, page, limit, sortBy);
