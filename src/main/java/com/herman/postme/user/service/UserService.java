@@ -28,7 +28,7 @@ public class UserService {
 
     public UserDto findByEmail(String email) throws NotFoundException {
         User userEntity = repository.findByEmail(email).orElseThrow(
-                () -> new NotFoundException("User with email " + email + " is not found")
+                () -> new NotFoundException("User by email is not found")
         );
 
         return modelMapper.map(userEntity, UserDto.class);
