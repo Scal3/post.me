@@ -24,6 +24,6 @@ public class PostRate {
     @JoinColumn(name = "post_id", insertable = false, updatable = false)
     private Post post;
 
-    @Column
+    @Column(nullable = false)
     private int rate;
 }

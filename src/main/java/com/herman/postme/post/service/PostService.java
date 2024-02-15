@@ -321,10 +321,57 @@ public class PostService {
         }
     }
 
-//    @Transactional
-//    public PostDto dislikePost(long id) {
-//
-//    }
+    @Transactional
+    public PostDto dislikePost(long id) {
+        try {
+            log.debug("Entering dislikePost method");
+            log.debug("Got {} as id argument", id);
+
+            Post post = postRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException("Post with id " + id + " is not found"));
+            log.debug("Post was found");
+
+            String userEmail = (String) SecurityContextHolder.getContext()
+                    .getAuthentication()
+                    .getPrincipal();
+            log.debug("User email was found in SecurityContextHolder");
+
+            UserDto userDto = userService.findByEmail(userEmail);
+            log.debug("User was found by email");
+
+            PostRateId postRateId = new PostRateId();
+            postRateId.setPostId(post.getId());
+            postRateId.setUserId(userDto.getId());
+
+            PostRate rateEntity = new PostRate();
+            rateEntity.setId(postRateId);
+            rateEntity.setRate(-1);
+
+            postRateRepository.save(rateEntity);
+
+            Post postWithDislike = postRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException("Post with id " + id + " is not found"));
+            log.debug("Getting updated post with dislike");
+
+            PostDto postDtoResult = modelMapper.map(postWithDislike, PostDto.class);
+            log.debug("Mapping from Post entity to PostDto {}", postDtoResult);
+            log.debug("Like was added");
+            log.debug("Exiting dislikePost method");
+
+            return postDtoResult;
+        } catch (NotFoundException exc) {
+            log.warn("Error has occurred {}", exc.getDescription());
+            log.debug("Exiting dislikePost method");
+
+            throw new NotFoundException(exc.getDescription());
+        } catch (Throwable throwable) {
+            log.warn("An unexpected exception has occurred " + throwable.getMessage());
+            log.debug("Exiting dislikePost method");
+            throwable.printStackTrace();
+
+            throw new InternalServerException("Something went wrong");
+        }
+    }
 
     private List<Post> getAllPostsBySort(int page, int limit, PostSortOrder sortBy) {
         List<Post> posts;
