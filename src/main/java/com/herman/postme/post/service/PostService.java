@@ -424,6 +424,12 @@ public class PostService {
             case COMMENTS_LESS:
                 posts = postRepository.findAllByUserIdOrderByCommentCountAsc(userId, pageable);
                 break;
+            case LIKES_MORE:
+                posts = postRepository.findAllByUserIdOrderByLikesDesc(userId, pageable);
+                break;
+            case LIKES_LESS:
+                posts = postRepository.findAllByUserIdOrderByLikesAsc(userId, pageable);
+                break;
             default:
                 posts = postRepository.findAllByUserId(userId, pageableWithFresherSort);
         }

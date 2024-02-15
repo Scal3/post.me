@@ -32,9 +32,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT p FROM Post p LEFT JOIN p.comments c WHERE p.user.id = :userId GROUP BY p.id ORDER BY COUNT(c) ASC")
     List<Post> findAllByUserIdOrderByCommentCountAsc(@Param("userId") long userId, Pageable pageable);
 
-//    @Query("")
-//    List<Post> findAllByUserIdOrderByLikesDesc(Pageable pageable);
-//
-//    @Query("")
-//    List<Post> findAllByUserIdOrderByLikesAsc(Pageable pageable);
+    @Query("SELECT p FROM Post p LEFT JOIN p.rates r WHERE p.user.id = :userId GROUP BY p.id ORDER BY COUNT(r) DESC")
+    List<Post> findAllByUserIdOrderByLikesDesc(@Param("userId") long userId, Pageable pageable);
+
+    @Query("SELECT p FROM Post p LEFT JOIN p.rates r WHERE p.user.id = :userId GROUP BY p.id ORDER BY COUNT(r) ASC")
+    List<Post> findAllByUserIdOrderByLikesAsc(@Param("userId") long userId, Pageable pageable);
 }
