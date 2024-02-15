@@ -6,7 +6,6 @@ import com.herman.postme.exception.exceptionimp.NotFoundException;
 import com.herman.postme.post.dto.*;
 import com.herman.postme.post.entity.Post;
 import com.herman.postme.post.enums.PostSortOrder;
-import com.herman.postme.post.mapper.PostMapper;
 import com.herman.postme.post.repository.PostRepository;
 import com.herman.postme.post_rate.entity.PostRate;
 import com.herman.postme.post_rate.entity.PostRateId;
@@ -17,6 +16,7 @@ import com.herman.postme.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -40,8 +40,7 @@ public class PostService {
 
     private final ModelMapper modelMapper;
 
-    private final PostMapper postMapper;
-
+    @Transactional
     public List<PostDtoWithCommentQuantity> getAllPosts(int page, int limit, PostSortOrder sortBy) {
         try {
             log.debug("Entering getAllPosts method");
@@ -50,7 +49,8 @@ public class PostService {
             List<Post> posts = getAllPostsBySort(page, limit, sortBy);
             log.debug("DB returned result");
 
-            List<PostDtoWithCommentQuantity> postDtos = postMapper.mapPostListToPostDtoList(posts);
+            List<PostDtoWithCommentQuantity> postDtos =
+                    modelMapper.map(posts, new TypeToken<List<PostDtoWithCommentQuantity>>() {}.getType());
             log.debug("Mapping from List<Post> to List<PostDtoWithCommentQuantity>: {}", postDtos);
             log.debug("Exiting getAllPosts method");
 
@@ -64,6 +64,7 @@ public class PostService {
         }
     }
 
+    @Transactional
     public PostDtoWithComments getOnePostById(long id) {
         try {
             log.debug("Entering getOnePostById method");
@@ -92,6 +93,7 @@ public class PostService {
         }
     }
 
+    @Transactional
     public List<PostDtoWithCommentQuantity> getUsersPostById(
             long userId, int page, int limit, PostSortOrder sortBy
     ) {
@@ -109,7 +111,7 @@ public class PostService {
             log.debug("DB returned result");
 
             List<PostDtoWithCommentQuantity> postDtos =
-                    postMapper.mapPostListToPostDtoList(usersPosts);
+                    modelMapper.map(usersPosts, new TypeToken<List<PostDtoWithCommentQuantity>>() {}.getType());
             log.debug("Mapping from List<Post> to List<PostDtoWithCommentQuantity>: {}", postDtos);
             log.debug("Exiting getUsersPostById method");
 
