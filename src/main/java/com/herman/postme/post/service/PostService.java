@@ -393,6 +393,12 @@ public class PostService {
             case COMMENTS_LESS:
                 posts = postRepository.findAllOrderByCommentsAsc(pageable);
                 break;
+            case LIKES_MORE:
+                posts = postRepository.findAllOrderByLikesDesc(pageable);
+                break;
+            case LIKES_LESS:
+                posts = postRepository.findAllOrderByLikesAsc(pageable);
+                break;
             default:
                 posts = postRepository.findAll(pageableWithFresherSort).getContent();
         }

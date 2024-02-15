@@ -18,11 +18,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT p FROM Post p LEFT JOIN p.comments c GROUP BY p.id ORDER BY COUNT(c) ASC")
     List<Post> findAllOrderByCommentsAsc(Pageable pageable);
 
-//    @Query("")
-//    List<Post> findAllOrderByLikesDesc(Pageable pageable);
-//
-//    @Query("")
-//    List<Post> findAllOrderByLikesAsc(Pageable pageable);
+    @Query("SELECT p FROM Post p LEFT JOIN p.rates r GROUP BY p.id ORDER BY COUNT(r) DESC")
+    List<Post> findAllOrderByLikesDesc(Pageable pageable);
+
+    @Query("SELECT p FROM Post p LEFT JOIN p.rates r GROUP BY p.id ORDER BY COUNT(r) ASC")
+    List<Post> findAllOrderByLikesAsc(Pageable pageable);
 
     List<Post> findAllByUserId(@Param("userId") long userId, Pageable pageable);
 
