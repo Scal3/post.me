@@ -63,4 +63,18 @@ public class PostControllerAccess {
 
         log.debug("Exiting deletePost method");
     }
+
+    @PutMapping("/like/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public PostDto likePost(@PathVariable @Positive long id) {
+        log.debug("Entering likePost method");
+        log.debug("Got {} as path variable", id);
+
+        PostDto post = postService.likePost(id);
+
+        log.debug("Exiting likePost method");
+
+        return post;
+
+    }
 }
