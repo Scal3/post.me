@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -271,7 +272,6 @@ public class PostService {
         }
     }
 
-    @Transactional
     public PostDto likePost(long id) {
         try {
             log.debug("Entering likePost method");
@@ -293,19 +293,36 @@ public class PostService {
             postRateId.setPostId(post.getId());
             postRateId.setUserId(userDto.getId());
 
-            PostRate rateEntity = new PostRate();
-            rateEntity.setId(postRateId);
-            rateEntity.setRate(1);
+            Optional<PostRate> expectedRate = postRateRepository.findById(postRateId);
+            boolean isRateExist = expectedRate.isPresent();
+            int like = 1;
+            int dislike = -1;
 
-            postRateRepository.save(rateEntity);
+            if (isRateExist && expectedRate.get().getRate() == like) {
+                postRateRepository.deleteById(postRateId);
+                log.debug("PostRate was removed from DB");
+            } else if (isRateExist && expectedRate.get().getRate() == dislike) {
+                PostRate rateEntity = new PostRate();
+                rateEntity.setId(postRateId);
+                rateEntity.setRate(like);
+
+                postRateRepository.save(rateEntity);
+                log.debug("PostRate was changed in DB");
+            } else {
+                PostRate rateEntity = new PostRate();
+                rateEntity.setId(postRateId);
+                rateEntity.setRate(like);
+
+                postRateRepository.save(rateEntity);
+                log.debug("PostRate was added to DB");
+            }
 
             Post postWithLike = postRepository.findById(id)
                     .orElseThrow(() -> new NotFoundException("Post with id " + id + " is not found"));
-            log.debug("Getting updated post with like");
+            log.debug("Getting updated post");
 
             PostDto postDtoResult = modelMapper.map(postWithLike, PostDto.class);
             log.debug("Mapping from Post entity to PostDto {}", postDtoResult);
-            log.debug("Like was added");
             log.debug("Exiting likePost method");
 
             return postDtoResult;
@@ -323,7 +340,6 @@ public class PostService {
         }
     }
 
-    @Transactional
     public PostDto dislikePost(long id) {
         try {
             log.debug("Entering dislikePost method");
@@ -345,19 +361,36 @@ public class PostService {
             postRateId.setPostId(post.getId());
             postRateId.setUserId(userDto.getId());
 
-            PostRate rateEntity = new PostRate();
-            rateEntity.setId(postRateId);
-            rateEntity.setRate(-1);
+            Optional<PostRate> expectedRate = postRateRepository.findById(postRateId);
+            boolean isRateExist = expectedRate.isPresent();
+            int like = 1;
+            int dislike = -1;
 
-            postRateRepository.save(rateEntity);
+            if (isRateExist && expectedRate.get().getRate() == dislike) {
+                postRateRepository.deleteById(postRateId);
+                log.debug("PostRate was removed from DB");
+            } else if (isRateExist && expectedRate.get().getRate() == like) {
+                PostRate rateEntity = new PostRate();
+                rateEntity.setId(postRateId);
+                rateEntity.setRate(dislike);
+
+                postRateRepository.save(rateEntity);
+                log.debug("PostRate was changed in DB");
+            } else {
+                PostRate rateEntity = new PostRate();
+                rateEntity.setId(postRateId);
+                rateEntity.setRate(dislike);
+
+                postRateRepository.save(rateEntity);
+                log.debug("PostRate was added to DB");
+            }
 
             Post postWithDislike = postRepository.findById(id)
                     .orElseThrow(() -> new NotFoundException("Post with id " + id + " is not found"));
-            log.debug("Getting updated post with dislike");
+            log.debug("Getting updated post");
 
             PostDto postDtoResult = modelMapper.map(postWithDislike, PostDto.class);
             log.debug("Mapping from Post entity to PostDto {}", postDtoResult);
-            log.debug("Like was added");
             log.debug("Exiting dislikePost method");
 
             return postDtoResult;

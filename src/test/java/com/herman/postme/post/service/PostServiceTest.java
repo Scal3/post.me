@@ -162,6 +162,28 @@ class PostServiceTest {
     }
 
     @Test
+    public void get_all_posts_likes_more_sort_case() {
+        postService.likePost(3);
+
+        List<PostDtoWithCommentQuantity> posts =
+                postService.getAllPosts(0, 15, PostSortOrder.LIKES_MORE);
+
+        assertEquals(5, posts.size());
+        assertEquals(MOCK_POST_THIRD_HEADING, posts.get(0).getHeading());
+    }
+
+    @Test
+    public void get_all_posts_likes_less_sort_case() {
+        postService.likePost(3);
+
+        List<PostDtoWithCommentQuantity> posts =
+                postService.getAllPosts(0, 15, PostSortOrder.LIKES_LESS);
+
+        assertEquals(5, posts.size());
+        assertEquals(MOCK_POST_THIRD_HEADING, posts.get(4).getHeading());
+    }
+
+    @Test
     public void get_all_posts_page_0_limit_2_case() {
         List<PostDtoWithCommentQuantity> posts =
                 postService.getAllPosts(0, 2, PostSortOrder.DATE_FRESHER);
@@ -222,6 +244,28 @@ class PostServiceTest {
         assertEquals(5, posts.size());
         assertEquals(MOCK_POST_FIRST_HEADING, posts.get(0).getHeading());
         assertEquals(MOCK_POST_FIFTH_HEADING, posts.get(4).getHeading());
+    }
+
+    @Test
+    public void get_users_post_by_id_likes_more_sort_case() {
+        postService.likePost(3);
+
+        List<PostDtoWithCommentQuantity> posts =
+                postService.getUsersPostById(2, 0, 15, PostSortOrder.LIKES_MORE);
+
+        assertEquals(5, posts.size());
+        assertEquals(MOCK_POST_THIRD_HEADING, posts.get(0).getHeading());
+    }
+
+    @Test
+    public void get_users_post_by_id_likes_less_sort_case() {
+        postService.likePost(3);
+
+        List<PostDtoWithCommentQuantity> posts =
+                postService.getUsersPostById(2, 0, 15, PostSortOrder.LIKES_LESS);
+
+        assertEquals(5, posts.size());
+        assertEquals(MOCK_POST_THIRD_HEADING, posts.get(4).getHeading());
     }
 
     @Test
@@ -396,5 +440,47 @@ class PostServiceTest {
         assertThrows(ForbiddenException.class, () -> {
             postService.deletePost(post.getId());
         });
+    }
+
+    @Test
+    public void like_post_normal_case() {
+//        PostDto likedPost =  postService.likePost(3);
+//
+//        assertEquals(1, likedPost.getRate());
+    }
+
+    @Test
+    public void like_post_post_is_has_users_like_already_case() {
+
+    }
+
+    @Test
+    public void like_post_post_is_has_users_dislike_already_case() {
+
+    }
+
+    @Test
+    public void like_post_post_is_not_found_case() {
+
+    }
+
+    @Test
+    public void dislike_post_normal_case() {
+
+    }
+
+    @Test
+    public void dislike_post_post_is_has_users_like_already_case() {
+
+    }
+
+    @Test
+    public void dislike_post_post_is_has_users_dislike_already_case() {
+
+    }
+
+    @Test
+    public void dislike_post_post_is_not_found_case() {
+
     }
 }
