@@ -20,6 +20,8 @@ public class PostDto {
 
     private boolean isUpdated;
 
+    private int rate;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

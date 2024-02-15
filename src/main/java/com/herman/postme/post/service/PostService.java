@@ -8,6 +8,9 @@ import com.herman.postme.post.entity.Post;
 import com.herman.postme.post.enums.PostSortOrder;
 import com.herman.postme.post.mapper.PostMapper;
 import com.herman.postme.post.repository.PostRepository;
+import com.herman.postme.post_rate.entity.PostRate;
+import com.herman.postme.post_rate.entity.PostRateId;
+import com.herman.postme.post_rate.repository.PostRateRepository;
 import com.herman.postme.user.dto.UserDto;
 import com.herman.postme.user.entity.User;
 import com.herman.postme.user.service.UserService;
@@ -30,6 +33,8 @@ import java.util.List;
 public class PostService {
 
     private final PostRepository postRepository;
+
+    private final PostRateRepository postRateRepository;
 
     private final UserService userService;
 
@@ -263,6 +268,63 @@ public class PostService {
             throw new InternalServerException("Something went wrong");
         }
     }
+
+    @Transactional
+    public PostDto likePost(long id) {
+        try {
+            log.debug("Entering likePost method");
+            log.debug("Got {} as id argument", id);
+
+            Post post = postRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException("Post with id " + id + " is not found"));
+            log.debug("Post was found");
+
+            String userEmail = (String) SecurityContextHolder.getContext()
+                    .getAuthentication()
+                    .getPrincipal();
+            log.debug("User email was found in SecurityContextHolder");
+
+            UserDto userDto = userService.findByEmail(userEmail);
+            log.debug("User was found by email");
+
+            PostRateId postRateId = new PostRateId();
+            postRateId.setPostId(post.getId());
+            postRateId.setUserId(userDto.getId());
+
+            PostRate rateEntity = new PostRate();
+            rateEntity.setId(postRateId);
+            rateEntity.setRate(1);
+
+            postRateRepository.save(rateEntity);
+
+            Post postWithLike = postRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException("Post with id " + id + " is not found"));
+            log.debug("Getting updated post with like");
+
+            PostDto postDtoResult = modelMapper.map(postWithLike, PostDto.class);
+            log.debug("Mapping from Post entity to PostDto {}", postDtoResult);
+            log.debug("Like was added");
+            log.debug("Exiting likePost method");
+
+            return postDtoResult;
+        } catch (NotFoundException exc) {
+            log.warn("Error has occurred {}", exc.getDescription());
+            log.debug("Exiting likePost method");
+
+            throw new NotFoundException(exc.getDescription());
+        } catch (Throwable throwable) {
+            log.warn("An unexpected exception has occurred " + throwable.getMessage());
+            log.debug("Exiting likePost method");
+            throwable.printStackTrace();
+
+            throw new InternalServerException("Something went wrong");
+        }
+    }
+
+//    @Transactional
+//    public PostDto dislikePost(long id) {
+//
+//    }
 
     private List<Post> getAllPostsBySort(int page, int limit, PostSortOrder sortBy) {
         List<Post> posts;
