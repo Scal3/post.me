@@ -30,7 +30,7 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Collections;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -43,6 +43,8 @@ class PostControllerAccessTest {
     private static final String UPDATE_POST_PATH = "/api/access/posts";
 
     private static final String DELETE_POST_PATH = "/api/access/posts";
+
+    private static final String RATE_POST_PATH = "/api/access/posts/like";
 
     private static final String MOCK_USER_EMAIL = "user1@user.com";
 
@@ -585,5 +587,119 @@ class PostControllerAccessTest {
         // And we're trying to delete it with our token
         mockMvc.perform(MockMvcRequestBuilders.delete(DELETE_POST_PATH + "/" + post.getId()))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void like_post_normal_case() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.put(RATE_POST_PATH + "/3"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(1));
+    }
+
+    @Test
+    public void like_post_post_has_users_like_already_case() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.put(RATE_POST_PATH + "/3"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(1));
+
+        mockMvc.perform(MockMvcRequestBuilders.put(RATE_POST_PATH + "/3"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(0));
+    }
+
+    @Test
+    public void like_post_post_has_users_dislike_already_case() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete(RATE_POST_PATH + "/3"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(-1));
+
+        mockMvc.perform(MockMvcRequestBuilders.put(RATE_POST_PATH + "/3"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(1));
+    }
+
+    @Test
+    public void like_post_post_is_not_found_case() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.put(RATE_POST_PATH + "/1000"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void like_post_id_is_wrong_case() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.put(RATE_POST_PATH + "/WRONG"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void like_post_id_is_negative_case() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.put(RATE_POST_PATH + "/-1"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void dislike_post_normal_case() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete(RATE_POST_PATH + "/3"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(-1));
+    }
+
+    @Test
+    public void dislike_post_post_has_users_like_already_case() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.put(RATE_POST_PATH + "/3"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(1));
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(RATE_POST_PATH + "/3"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(-1));
+    }
+
+    @Test
+    public void dislike_post_post_has_users_dislike_already_case() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete(RATE_POST_PATH + "/3"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(-1));
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(RATE_POST_PATH + "/3"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(0));
+    }
+
+    @Test
+    public void dislike_post_post_not_found_case() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete(RATE_POST_PATH + "/1000"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void dislike_post_id_is_wrong_case() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete(RATE_POST_PATH + "/WRONG"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void dislike_post_id_is_negative_case() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete(RATE_POST_PATH + "/-1"))
+                .andExpect(status().isBadRequest());
     }
 }
