@@ -2,7 +2,7 @@ package com.herman.postme.comment.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.herman.postme.post.entity.Post;
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
