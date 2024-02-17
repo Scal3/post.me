@@ -3,7 +3,6 @@ package com.herman.postme.post.controller;
 import com.herman.postme.post.entity.Post;
 import com.herman.postme.post.enums.PostSortOrder;
 import com.herman.postme.post.repository.PostRepository;
-import com.herman.postme.post.service.PostService;
 import com.herman.postme.role.entity.Role;
 import com.herman.postme.role.service.RoleService;
 import com.herman.postme.user.entity.User;

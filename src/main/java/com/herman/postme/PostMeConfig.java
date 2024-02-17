@@ -6,6 +6,7 @@ import com.herman.postme.post.dto.PostDtoWithCommentQuantity;
 import com.herman.postme.post.dto.PostDtoWithComments;
 import com.herman.postme.post.entity.Post;
 import com.herman.postme.post_rate.entity.PostRate;
+import org.hibernate.collection.spi.PersistentCollection;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
@@ -24,6 +25,10 @@ public class PostMeConfig {
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.getConfiguration()
+                .setPropertyCondition((MappingContext<Object, Object> context) ->
+                        (!(context.getSource() instanceof PersistentCollection)
+                        || ((PersistentCollection)context.getSource()).wasInitialized()));
 
         Converter<List<PostRate>, Integer> postsLikesConverter =
                 context -> {

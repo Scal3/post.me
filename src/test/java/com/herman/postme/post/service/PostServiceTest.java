@@ -292,8 +292,7 @@ class PostServiceTest {
     @Tag("excludeBeforeEach")
     public void get_users_post_by_id_no_posts_in_db_case() {
         Role userRole = modelMapper.map(roleService.getUserRole(), Role.class);
-
-        addMockUserToDB(
+        User user = addMockUserToDB(
                 MOCK_USER_EMAIL,
                 MOCK_USER_LOGIN,
                 MOCK_USER_PASSWORD,
@@ -302,7 +301,7 @@ class PostServiceTest {
         );
 
         List<PostDtoWithCommentQuantity> posts =
-                postService.getUsersPostById(2, 0, 15, PostSortOrder.DATE_FRESHER);
+                postService.getUsersPostById(user.getId(), 0, 15, PostSortOrder.DATE_FRESHER);
 
         assertEquals(0, posts.size());
     }
@@ -444,43 +443,61 @@ class PostServiceTest {
 
     @Test
     public void like_post_normal_case() {
-//        PostDto likedPost =  postService.likePost(3);
-//
-//        assertEquals(1, likedPost.getRate());
+        PostDto likedPost = postService.likePost(3);
+
+        assertEquals(1, likedPost.getRate());
     }
 
     @Test
-    public void like_post_post_is_has_users_like_already_case() {
+    public void like_post_post_has_users_like_already_case() {
+        PostDto likedPost = postService.likePost(3);
+        assertEquals(1, likedPost.getRate());
 
+        PostDto doubleLikedPost = postService.likePost(3);
+        assertEquals(0, doubleLikedPost.getRate());
     }
 
     @Test
-    public void like_post_post_is_has_users_dislike_already_case() {
+    public void like_post_post_has_users_dislike_already_case() {
+        PostDto dislikedPost = postService.dislikePost(3);
+        assertEquals(-1, dislikedPost.getRate());
 
+        PostDto likedPost = postService.likePost(3);
+        assertEquals(1, likedPost.getRate());
     }
 
     @Test
     public void like_post_post_is_not_found_case() {
-
+        assertThrows(NotFoundException.class, () -> postService.likePost(1000));
     }
 
     @Test
     public void dislike_post_normal_case() {
+        PostDto dislikedPost = postService.dislikePost(3);
 
+        assertEquals(-1, dislikedPost.getRate());
     }
 
     @Test
-    public void dislike_post_post_is_has_users_like_already_case() {
+    public void dislike_post_post_has_users_like_already_case() {
+        PostDto likedPost = postService.likePost(3);
+        assertEquals(1, likedPost.getRate());
 
+        PostDto dislikedPost = postService.dislikePost(3);
+        assertEquals(-1, dislikedPost.getRate());
     }
 
     @Test
-    public void dislike_post_post_is_has_users_dislike_already_case() {
+    public void dislike_post_post_has_users_dislike_already_case() {
+        PostDto dislikedPost = postService.dislikePost(3);
+        assertEquals(-1, dislikedPost.getRate());
 
+        PostDto doubleDislikedPost = postService.dislikePost(3);
+        assertEquals(0, doubleDislikedPost.getRate());
     }
 
     @Test
-    public void dislike_post_post_is_not_found_case() {
-
+    public void dislike_post_post_not_found_case() {
+        assertThrows(NotFoundException.class, () -> postService.dislikePost(1000));
     }
 }

@@ -41,7 +41,6 @@ public class PostService {
 
     private final ModelMapper modelMapper;
 
-    @Transactional
     public List<PostDtoWithCommentQuantity> getAllPosts(int page, int limit, PostSortOrder sortBy) {
         try {
             log.debug("Entering getAllPosts method");
@@ -65,7 +64,6 @@ public class PostService {
         }
     }
 
-    @Transactional
     public PostDtoWithComments getOnePostById(long id) {
         try {
             log.debug("Entering getOnePostById method");
@@ -94,7 +92,6 @@ public class PostService {
         }
     }
 
-    @Transactional
     public List<PostDtoWithCommentQuantity> getUsersPostById(
             long userId, int page, int limit, PostSortOrder sortBy
     ) {
@@ -317,7 +314,7 @@ public class PostService {
                 log.debug("PostRate was added to DB");
             }
 
-            Post postWithLike = postRepository.findById(id)
+            Post postWithLike = postRepository.findByIdWithLikes(id)
                     .orElseThrow(() -> new NotFoundException("Post with id " + id + " is not found"));
             log.debug("Getting updated post");
 
@@ -385,7 +382,7 @@ public class PostService {
                 log.debug("PostRate was added to DB");
             }
 
-            Post postWithDislike = postRepository.findById(id)
+            Post postWithDislike = postRepository.findByIdWithLikes(id)
                     .orElseThrow(() -> new NotFoundException("Post with id " + id + " is not found"));
             log.debug("Getting updated post");
 

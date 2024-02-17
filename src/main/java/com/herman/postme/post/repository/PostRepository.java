@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
@@ -37,4 +38,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT p FROM Post p LEFT JOIN p.rates r WHERE p.user.id = :userId GROUP BY p.id ORDER BY COUNT(r) ASC")
     List<Post> findAllByUserIdOrderByLikesAsc(@Param("userId") long userId, Pageable pageable);
+
+    @Query("SELECT p FROM Post p LEFT JOIN FETCH p.rates r WHERE p.id = :postId")
+    Optional<Post> findByIdWithLikes(@Param("postId") long postId);
 }

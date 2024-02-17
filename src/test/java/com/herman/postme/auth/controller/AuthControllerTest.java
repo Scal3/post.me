@@ -5,7 +5,6 @@ import com.herman.postme.auth.dto.LoginDto;
 import com.herman.postme.auth.dto.RegisterDto;
 import com.herman.postme.role.entity.Role;
 import com.herman.postme.role.service.RoleService;
-import com.herman.postme.security.util.JWTUtil;
 import com.herman.postme.user.entity.User;
 import com.herman.postme.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,8 +35,6 @@ class AuthControllerTest {
     private static final String LOGIN_PATH = "/api/auth/sign-in";
 
     private final MockMvc mockMvc;
-
-    private final JWTUtil jwtUtil;
 
     private final ModelMapper modelMapper;
 
