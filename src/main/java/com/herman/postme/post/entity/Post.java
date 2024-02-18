@@ -48,6 +48,6 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<PostRate> rates;
 
-    @ManyToMany(mappedBy = "posts")
+    @ManyToMany(mappedBy = "posts", fetch = FetchType.EAGER)
     private Set<Tag> tags;
 }
