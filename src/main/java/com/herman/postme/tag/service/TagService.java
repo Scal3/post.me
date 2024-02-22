@@ -39,12 +39,35 @@ public class TagService {
         }
     }
 
+    public List<TagDto> getAllTags(int page, int limit) {
+        try {
+            log.debug("Entering getAllTags method");
+            log.debug("Got page value {} and limit value {}", page, limit);
+
+            Pageable pageable = PageRequest.of(page, limit);
+            List<Tag> tags = tagRepository.findTagsSortedByAmountOfUsage(pageable);
+            log.debug("Db return result {}", tags);
+
+            List<TagDto> mappedTags = mapper.map(tags, new TypeToken<List< TagDto >>() {}.getType());
+            log.debug("Mapping List<Tag> to List<TagDto> {}", mappedTags);
+            log.debug("Exiting getAllTags method");
+
+            return mappedTags;
+        } catch (Throwable throwable) {
+            log.warn("An unexpected exception has occurred " + throwable.getMessage());
+            log.debug("Exiting getAllTags method");
+            throwable.printStackTrace();
+
+            throw new InternalServerException("Something went wrong");
+        }
+    }
+
     public List<TagDto> getTop10TagsByUsage() {
         try {
             log.debug("Entering getTop10TagsByUsage method");
 
             Pageable pageable = PageRequest.of(0, 10);
-            List<Tag> tags = tagRepository.find10TagsByAmountOfUsage(pageable);
+            List<Tag> tags = tagRepository.findTagsSortedByAmountOfUsage(pageable);
             log.debug("Db return result {}", tags);
 
             List<TagDto> mappedTags = mapper.map(tags, new TypeToken<List< TagDto >>() {}.getType());

@@ -21,7 +21,7 @@ public class TagController {
 
     private final TagService tagService;
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/popular", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public List<TagDto> getTop10TagsByUsage() {
         log.debug("Entering getTop10TagsByUsage method");

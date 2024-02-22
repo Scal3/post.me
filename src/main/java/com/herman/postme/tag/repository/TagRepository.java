@@ -19,5 +19,5 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
             "t LEFT JOIN t.posts p " +
             "GROUP BY t.id " +
             "ORDER BY COUNT(t) DESC")
-    List<Tag> find10TagsByAmountOfUsage(Pageable pageable);
+    List<Tag> findTagsSortedByAmountOfUsage(Pageable pageable);
 }
