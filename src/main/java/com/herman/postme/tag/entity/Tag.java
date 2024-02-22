@@ -3,6 +3,7 @@ package com.herman.postme.tag.entity;
 import com.herman.postme.post.entity.Post;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.List;
@@ -20,6 +21,7 @@ public class Tag {
     @Column(unique = true, nullable = false)
     private String name;
 
+    @ToString.Exclude
     @ManyToMany(mappedBy = "tags")
     private List<Post> posts;
 }
