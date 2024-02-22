@@ -225,6 +225,18 @@ public class PostService {
             postEntity.setUpdatedAt(LocalDateTime.now());
             postEntity.setHeading(dto.getHeading());
             postEntity.setText(dto.getText());
+            postEntity.getTags().clear();
+
+            List<String> tagsLoweCase = dto.getTags().stream()
+                    .map(String::toLowerCase)
+                    .collect(Collectors.toList());
+            Set<Tag> tagEntities = checkTagsIfTheyAreEqualMapToOne(tagsLoweCase).stream()
+                    .map(tagService::getTagOrSaveIt)
+                    .peek(tag -> tag.getPosts().add(postEntity))
+                    .collect(Collectors.toSet());
+            log.debug("Set of Tag entities was created {}", tagEntities);
+
+            postEntity.setTags(tagEntities);
 
             Post updatedEntity = postRepository.save(postEntity);
             PostDto postDtoResult = modelMapper.map(updatedEntity, PostDto.class);
