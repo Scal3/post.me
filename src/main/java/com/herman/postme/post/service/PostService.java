@@ -10,6 +10,8 @@ import com.herman.postme.post.repository.PostRepository;
 import com.herman.postme.post_rate.entity.PostRate;
 import com.herman.postme.post_rate.entity.PostRateId;
 import com.herman.postme.post_rate.repository.PostRateRepository;
+import com.herman.postme.tag.entity.Tag;
+import com.herman.postme.tag.service.TagService;
 import com.herman.postme.user.dto.UserDto;
 import com.herman.postme.user.entity.User;
 import com.herman.postme.user.service.UserService;
@@ -27,6 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,14 +43,26 @@ public class PostService {
 
     private final UserService userService;
 
+    private final TagService tagService;
+
     private final ModelMapper modelMapper;
 
-    public List<PostDtoWithCommentQuantity> getAllPosts(int page, int limit, PostSortOrder sortBy) {
+    public List<PostDtoWithCommentQuantity> getAllPosts(
+            int page, int limit, List<String> tags, PostSortOrder sortBy
+    ) {
         try {
             log.debug("Entering getAllPosts method");
-            log.debug("Got page value {}, limit value {}, sortBy value {}", page, limit, sortBy);
+            log.debug("Got page value {}, limit value {}, tags value {}, sortBy value {}",
+                    page, limit, tags, sortBy);
 
-            List<Post> posts = getAllPostsBySort(page, limit, sortBy);
+            List<Post> posts;
+
+            if (tags != null) {
+                posts = getAllPostsWithTagsBySort(page, limit, tags, sortBy);
+            } else {
+                posts = getAllPostsBySort(page, limit, sortBy);
+            }
+
             log.debug("DB returned result");
 
             List<PostDtoWithCommentQuantity> postDtos =
@@ -148,8 +164,19 @@ public class PostService {
             User userEntity = modelMapper.map(userDto, User.class);
             log.debug("Mapping UserDto to User entity {}", userEntity);
 
-            postEntity.setUser(userEntity);
             postEntity.setCreatedAt(LocalDateTime.now());
+            postEntity.setUser(userEntity);
+
+            List<String> tagsLoweCase = dto.getTags().stream()
+                    .map(String::toLowerCase)
+                    .collect(Collectors.toList());
+            Set<Tag> tagEntities = checkTagsIfTheyAreEqualMapToOne(tagsLoweCase).stream()
+                    .map(tagService::getTagOrSaveIt)
+                    .peek(tag -> tag.getPosts().add(postEntity))
+                    .collect(Collectors.toSet());
+            log.debug("Set of Tag entities was created {}", tagEntities);
+
+            postEntity.setTags(tagEntities);
 
             Post savedPost = postRepository.save(postEntity);
             PostDto postDtoResult = modelMapper.map(savedPost, PostDto.class);
@@ -405,7 +432,9 @@ public class PostService {
         }
     }
 
-    private List<Post> getAllPostsBySort(int page, int limit, PostSortOrder sortBy) {
+    private List<Post> getAllPostsBySort(
+            int page, int limit, PostSortOrder sortBy
+    ) {
         List<Post> posts;
         Pageable pageable = PageRequest.of(page, limit);
         Pageable pageableWithFresherSort =
@@ -431,6 +460,39 @@ public class PostService {
                 break;
             default:
                 posts = postRepository.findAll(pageableWithFresherSort).getContent();
+        }
+
+        return posts;
+    }
+
+    private List<Post> getAllPostsWithTagsBySort(
+            int page, int limit, List<String> tags, PostSortOrder sortBy
+    ) {
+        List<Post> posts;
+        Pageable pageable = PageRequest.of(page, limit);
+        Pageable pageableWithFresherSort =
+                PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageableWithOlderSort =
+                PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "createdAt"));
+
+        switch (sortBy) {
+            case DATE_OLDER:
+                posts = postRepository.findAllByTagsOrderByCreatedAtAsc(tags, pageableWithOlderSort);
+                break;
+            case COMMENTS_MORE:
+                posts = postRepository.findAllByTagsOrderByCommentsDesc(tags, pageable);
+                break;
+            case COMMENTS_LESS:
+                posts = postRepository.findAllByTagsOrderByCommentsAsc(tags, pageable);
+                break;
+            case LIKES_MORE:
+                posts = postRepository.findAllByTagsOrderByLikesDesc(tags, pageable);
+                break;
+            case LIKES_LESS:
+                posts = postRepository.findAllByTagsOrderByLikesAsc(tags, pageable);
+                break;
+            default:
+                posts = postRepository.findAllByTagsOrderByCreatedAtDesc(tags, pageableWithFresherSort);
         }
 
         return posts;
@@ -465,5 +527,23 @@ public class PostService {
         }
 
         return posts;
+    }
+
+    private List<String> checkTagsIfTheyAreEqualMapToOne(List<String> tags) {
+        if (tags.size() == 1) return tags;
+
+        List<String> sortedTags = tags.stream()
+                .sorted()
+                .collect(Collectors.toList());
+
+        if (sortedTags.get(0).equals(sortedTags.get(1))) {
+            sortedTags.remove(sortedTags.get(1));
+        }
+
+        if (sortedTags.size() > 1 && sortedTags.get(0).equals(sortedTags.get(1))) {
+            sortedTags.remove(sortedTags.get(1));
+        }
+
+        return sortedTags;
     }
 }

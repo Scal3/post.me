@@ -29,6 +29,7 @@ public class PostController {
     public List<PostDtoWithCommentQuantity> getAllPosts(
             @RequestParam(defaultValue = "0") @PositiveOrZero int page,
             @RequestParam(defaultValue = "15") @Positive int limit,
+            @RequestParam(required = false) List<String> tags,
             @RequestParam(defaultValue = "DATE_FRESHER") PostSortOrder sortBy
     ) {
         log.debug("Entering getAllPosts method");
@@ -37,7 +38,7 @@ public class PostController {
                 "{} value as limit argument, " +
                 "{} value as sortBy argument", page, limit, sortBy);
 
-        List<PostDtoWithCommentQuantity> posts = postService.getAllPosts(page, limit, sortBy);
+        List<PostDtoWithCommentQuantity> posts = postService.getAllPosts(page, limit, tags, sortBy);
 
         log.debug("Exiting getAllPosts method");
 

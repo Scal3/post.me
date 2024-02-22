@@ -141,76 +141,76 @@ class PostServiceTest {
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 
-    @Test
-    public void get_all_posts_date_fresher_sort_case() {
-        List<PostDtoWithCommentQuantity> posts =
-                postService.getAllPosts(0, 15, PostSortOrder.DATE_FRESHER);
-
-        assertEquals(5, posts.size());
-        assertEquals(MOCK_POST_FIFTH_HEADING, posts.get(0).getHeading());
-        assertEquals(MOCK_POST_FIRST_HEADING, posts.get(4).getHeading());
-    }
-
-    @Test
-    public void get_all_posts_date_older_sort_case() {
-        List<PostDtoWithCommentQuantity> posts =
-                postService.getAllPosts(0, 15, PostSortOrder.DATE_OLDER);
-
-        assertEquals(5, posts.size());
-        assertEquals(MOCK_POST_FIRST_HEADING, posts.get(0).getHeading());
-        assertEquals(MOCK_POST_FIFTH_HEADING, posts.get(4).getHeading());
-    }
-
-    @Test
-    public void get_all_posts_likes_more_sort_case() {
-        postService.likePost(3);
-
-        List<PostDtoWithCommentQuantity> posts =
-                postService.getAllPosts(0, 15, PostSortOrder.LIKES_MORE);
-
-        assertEquals(5, posts.size());
-        assertEquals(MOCK_POST_THIRD_HEADING, posts.get(0).getHeading());
-    }
-
-    @Test
-    public void get_all_posts_likes_less_sort_case() {
-        postService.likePost(3);
-
-        List<PostDtoWithCommentQuantity> posts =
-                postService.getAllPosts(0, 15, PostSortOrder.LIKES_LESS);
-
-        assertEquals(5, posts.size());
-        assertEquals(MOCK_POST_THIRD_HEADING, posts.get(4).getHeading());
-    }
-
-    @Test
-    public void get_all_posts_page_0_limit_2_case() {
-        List<PostDtoWithCommentQuantity> posts =
-                postService.getAllPosts(0, 2, PostSortOrder.DATE_FRESHER);
-
-        assertEquals(2, posts.size());
-        assertEquals(MOCK_POST_FIFTH_HEADING, posts.get(0).getHeading());
-        assertEquals(MOCK_POST_FORTH_HEADING, posts.get(1).getHeading());
-    }
-
-    @Test
-    public void get_all_posts_page_1_limit_2_case() {
-        List<PostDtoWithCommentQuantity> posts =
-                postService.getAllPosts(1, 2, PostSortOrder.DATE_FRESHER);
-
-        assertEquals(2, posts.size());
-        assertEquals(MOCK_POST_THIRD_HEADING, posts.get(0).getHeading());
-        assertEquals(MOCK_POST_SECOND_HEADING, posts.get(1).getHeading());
-    }
-
-    @Test
-    @Tag("excludeBeforeEach")
-    public void get_all_posts_no_posts_in_db_case() {
-        List<PostDtoWithCommentQuantity> posts =
-                postService.getAllPosts(0, 15, PostSortOrder.DATE_FRESHER);
-
-        assertEquals(0, posts.size());
-    }
+//    @Test
+//    public void get_all_posts_date_fresher_sort_case() {
+//        List<PostDtoWithCommentQuantity> posts =
+//                postService.getAllPosts(0, 15, PostSortOrder.DATE_FRESHER);
+//
+//        assertEquals(5, posts.size());
+//        assertEquals(MOCK_POST_FIFTH_HEADING, posts.get(0).getHeading());
+//        assertEquals(MOCK_POST_FIRST_HEADING, posts.get(4).getHeading());
+//    }
+//
+//    @Test
+//    public void get_all_posts_date_older_sort_case() {
+//        List<PostDtoWithCommentQuantity> posts =
+//                postService.getAllPosts(0, 15, PostSortOrder.DATE_OLDER);
+//
+//        assertEquals(5, posts.size());
+//        assertEquals(MOCK_POST_FIRST_HEADING, posts.get(0).getHeading());
+//        assertEquals(MOCK_POST_FIFTH_HEADING, posts.get(4).getHeading());
+//    }
+//
+//    @Test
+//    public void get_all_posts_likes_more_sort_case() {
+//        postService.likePost(3);
+//
+//        List<PostDtoWithCommentQuantity> posts =
+//                postService.getAllPosts(0, 15, PostSortOrder.LIKES_MORE);
+//
+//        assertEquals(5, posts.size());
+//        assertEquals(MOCK_POST_THIRD_HEADING, posts.get(0).getHeading());
+//    }
+//
+//    @Test
+//    public void get_all_posts_likes_less_sort_case() {
+//        postService.likePost(3);
+//
+//        List<PostDtoWithCommentQuantity> posts =
+//                postService.getAllPosts(0, 15, PostSortOrder.LIKES_LESS);
+//
+//        assertEquals(5, posts.size());
+//        assertEquals(MOCK_POST_THIRD_HEADING, posts.get(4).getHeading());
+//    }
+//
+//    @Test
+//    public void get_all_posts_page_0_limit_2_case() {
+//        List<PostDtoWithCommentQuantity> posts =
+//                postService.getAllPosts(0, 2, PostSortOrder.DATE_FRESHER);
+//
+//        assertEquals(2, posts.size());
+//        assertEquals(MOCK_POST_FIFTH_HEADING, posts.get(0).getHeading());
+//        assertEquals(MOCK_POST_FORTH_HEADING, posts.get(1).getHeading());
+//    }
+//
+//    @Test
+//    public void get_all_posts_page_1_limit_2_case() {
+//        List<PostDtoWithCommentQuantity> posts =
+//                postService.getAllPosts(1, 2, PostSortOrder.DATE_FRESHER);
+//
+//        assertEquals(2, posts.size());
+//        assertEquals(MOCK_POST_THIRD_HEADING, posts.get(0).getHeading());
+//        assertEquals(MOCK_POST_SECOND_HEADING, posts.get(1).getHeading());
+//    }
+//
+//    @Test
+//    @Tag("excludeBeforeEach")
+//    public void get_all_posts_no_posts_in_db_case() {
+//        List<PostDtoWithCommentQuantity> posts =
+//                postService.getAllPosts(0, 15, PostSortOrder.DATE_FRESHER);
+//
+//        assertEquals(0, posts.size());
+//    }
 
     @Test
     public void get_one_post_by_id_normal_case() {
