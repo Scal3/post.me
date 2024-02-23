@@ -25,7 +25,9 @@ public class TagService {
 
     private final ModelMapper mapper;
 
-    public Tag getTagOrSaveIt(String tagName) {
+    public Tag getTagOrSaveIt(String tagName) throws RuntimeException {
+        if (tagName.isBlank()) throw new RuntimeException("Tag name is blank");
+
         Optional<Tag> optionalTag = tagRepository.findOneByName(tagName);
 
         if (optionalTag.isPresent()) {
