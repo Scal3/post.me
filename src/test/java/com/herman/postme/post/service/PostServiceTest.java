@@ -4,15 +4,16 @@ import com.herman.postme.exception.exceptionimp.ForbiddenException;
 import com.herman.postme.exception.exceptionimp.NotFoundException;
 import com.herman.postme.post.dto.*;
 import com.herman.postme.post.entity.Post;
+import com.herman.postme.tag.entity.Tag;
 import com.herman.postme.post.enums.PostSortOrder;
 import com.herman.postme.post.repository.PostRepository;
 import com.herman.postme.role.entity.Role;
 import com.herman.postme.role.service.RoleService;
+import com.herman.postme.tag.repository.TagRepository;
 import com.herman.postme.user.entity.User;
 import com.herman.postme.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.modelmapper.ModelMapper;
@@ -26,9 +27,7 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -54,6 +53,16 @@ class PostServiceTest {
 
     private static final String MOCK_POST_FIFTH_HEADING = "post number 5";
 
+    private static final String MOCK_TAG_FIRST = "first";
+
+    private static final String MOCK_TAG_SECOND = "second";
+
+    private static final String MOCK_TAG_THIRD = "third";
+
+    private static final String MOCK_TAG_FORTH = "forth";
+
+    private static final String MOCK_TAG_FIFTH = "fifth";
+
     private final PostService postService;
 
     private final RoleService roleService;
@@ -66,6 +75,8 @@ class PostServiceTest {
 
     private final PostRepository postRepository;
 
+    private final TagRepository tagRepository;
+
     @BeforeEach
     public void setup(TestInfo info) {
         boolean isExcludeSetup = info.getTags()
@@ -73,6 +84,12 @@ class PostServiceTest {
                 .anyMatch((tag) -> tag.equals("excludeBeforeEach"));
 
         if (isExcludeSetup) return;
+
+        Tag tagFirst = addMockTagToDB(MOCK_TAG_FIRST);
+        Tag tagSecond = addMockTagToDB(MOCK_TAG_SECOND);
+        Tag tagThird = addMockTagToDB(MOCK_TAG_THIRD);
+        addMockTagToDB(MOCK_TAG_FORTH);
+        addMockTagToDB(MOCK_TAG_FIFTH);
 
         Role userRole = modelMapper.map(roleService.getUserRole(), Role.class);
 
@@ -95,11 +112,18 @@ class PostServiceTest {
         LocalDateTime wasCreatedFifth =
                 LocalDateTime.of(2020, Month.JULY, 24, 12, 30);
 
-//        addMockPostsToDB(MOCK_POST_FIRST_HEADING, "post number 1", wasCreatedFirst, mockUser);
-//        addMockPostsToDB(MOCK_POST_SECOND_HEADING, "post number 2", wasCreatedSecond, mockUser);
-//        addMockPostsToDB(MOCK_POST_THIRD_HEADING, "post number 3", wasCreatedThird, mockUser);
-//        addMockPostsToDB(MOCK_POST_FORTH_HEADING, "post number 4", wasCreatedForth, mockUser);
-//        addMockPostsToDB(MOCK_POST_FIFTH_HEADING, "post number 5", wasCreatedFifth, mockUser);
+        Set<Tag> firstTagSet = new HashSet<>();
+        firstTagSet.add(tagFirst);
+        Set<Tag> secondTagSet = new HashSet<>();
+        secondTagSet.add(tagSecond);
+        Set<Tag> thirdTagSet = new HashSet<>();
+        thirdTagSet.add(tagThird);
+
+        addMockPostsToDB(MOCK_POST_FIRST_HEADING, "post number 1", wasCreatedFirst, mockUser, firstTagSet);
+        addMockPostsToDB(MOCK_POST_SECOND_HEADING, "post number 2", wasCreatedSecond, mockUser, firstTagSet);
+        addMockPostsToDB(MOCK_POST_THIRD_HEADING, "post number 3", wasCreatedThird, mockUser, secondTagSet);
+        addMockPostsToDB(MOCK_POST_FORTH_HEADING, "post number 4", wasCreatedForth, mockUser, secondTagSet);
+        addMockPostsToDB(MOCK_POST_FIFTH_HEADING, "post number 5", wasCreatedFifth, mockUser, thirdTagSet);
 
         setAuthenticationToMockUser(
                 MOCK_USER_EMAIL,
@@ -121,16 +145,25 @@ class PostServiceTest {
         return userRepository.save(mockUser);
     }
 
+    private Tag addMockTagToDB(String tagName) {
+        Tag tagEntity = new Tag();
+        tagEntity.setName(tagName);
+        tagEntity.setPosts(new ArrayList<>());
+
+        return tagRepository.save(tagEntity);
+    }
+
     private Post addMockPostsToDB(
             String heading, String text, LocalDateTime createdAt,
-            User user, Set<com.herman.postme.tag.entity.Tag> tags
+            User user, Set<Tag> tags
             ) {
         Post post = new Post();
         post.setHeading(heading);
         post.setText(text);
         post.setCreatedAt(createdAt);
         post.setUser(user);
-        post.setTags(tags);
+
+        tags.forEach(tag -> tag.getPosts().add(post));
 
         return postRepository.save(post);
     }
@@ -209,7 +242,7 @@ class PostServiceTest {
     }
 
     @Test
-    @Tag("excludeBeforeEach")
+    @org.junit.jupiter.api.Tag("excludeBeforeEach")
     public void get_all_posts_no_posts_in_db_no_tags_case() {
         List<PostDtoWithCommentQuantity> posts =
                 postService.getAllPosts(0, 15, null, PostSortOrder.DATE_FRESHER);
@@ -224,19 +257,18 @@ class PostServiceTest {
 
 
 
-//
-//
-//
-//    @Test
-//    public void get_all_posts_date_fresher_sort_with_tags_case() {
-//        List<PostDtoWithCommentQuantity> posts =
-//                postService.getAllPosts(0, 15, PostSortOrder.DATE_FRESHER);
-//
-//        assertEquals(5, posts.size());
-//        assertEquals(MOCK_POST_FIFTH_HEADING, posts.get(0).getHeading());
-//        assertEquals(MOCK_POST_FIRST_HEADING, posts.get(4).getHeading());
-//    }
-//
+
+
+
+    @Test
+    public void get_all_posts_date_fresher_sort_with_tags_case() {
+        List<String> tags = List.of(MOCK_TAG_FIRST);
+        List<PostDtoWithCommentQuantity> posts =
+                postService.getAllPosts(0, 15, tags, PostSortOrder.DATE_FRESHER);
+
+        assertEquals(2, posts.size());
+    }
+
 //    @Test
 //    public void get_all_posts_date_older_sort_with_tags_case() {
 //        List<PostDtoWithCommentQuantity> posts =
@@ -388,7 +420,7 @@ class PostServiceTest {
     }
 
     @Test
-    @Tag("excludeBeforeEach")
+    @org.junit.jupiter.api.Tag("excludeBeforeEach")
     public void get_users_post_by_id_no_posts_in_db_case() {
         Role userRole = modelMapper.map(roleService.getUserRole(), Role.class);
         User user = addMockUserToDB(
