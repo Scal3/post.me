@@ -165,6 +165,8 @@ class PostServiceTest {
 
         tags.forEach(tag -> tag.getPosts().add(post));
 
+        post.setTags(tags);
+
         return postRepository.save(post);
     }
 
@@ -250,16 +252,6 @@ class PostServiceTest {
         assertEquals(0, posts.size());
     }
 
-
-
-
-
-
-
-
-
-
-
     @Test
     public void get_all_posts_date_fresher_sort_with_tags_case() {
         List<String> tags = List.of(MOCK_TAG_FIRST);
@@ -267,81 +259,48 @@ class PostServiceTest {
                 postService.getAllPosts(0, 15, tags, PostSortOrder.DATE_FRESHER);
 
         assertEquals(2, posts.size());
+        assertEquals(MOCK_POST_SECOND_HEADING, posts.get(0).getHeading());
+        assertEquals(MOCK_POST_FIRST_HEADING, posts.get(1).getHeading());
     }
 
-//    @Test
-//    public void get_all_posts_date_older_sort_with_tags_case() {
-//        List<PostDtoWithCommentQuantity> posts =
-//                postService.getAllPosts(0, 15, PostSortOrder.DATE_OLDER);
-//
-//        assertEquals(5, posts.size());
-//        assertEquals(MOCK_POST_FIRST_HEADING, posts.get(0).getHeading());
-//        assertEquals(MOCK_POST_FIFTH_HEADING, posts.get(4).getHeading());
-//    }
-//
-//    @Test
-//    public void get_all_posts_likes_more_sort_with_tags_case() {
-//        postService.likePost(3);
-//
-//        List<PostDtoWithCommentQuantity> posts =
-//                postService.getAllPosts(0, 15, PostSortOrder.LIKES_MORE);
-//
-//        assertEquals(5, posts.size());
-//        assertEquals(MOCK_POST_THIRD_HEADING, posts.get(0).getHeading());
-//    }
-//
-//    @Test
-//    public void get_all_posts_likes_less_sort_with_tags_case() {
-//        postService.likePost(3);
-//
-//        List<PostDtoWithCommentQuantity> posts =
-//                postService.getAllPosts(0, 15, PostSortOrder.LIKES_LESS);
-//
-//        assertEquals(5, posts.size());
-//        assertEquals(MOCK_POST_THIRD_HEADING, posts.get(4).getHeading());
-//    }
-//
-//    @Test
-//    public void get_all_posts_page_0_limit_2_with_tags_case() {
-//        List<PostDtoWithCommentQuantity> posts =
-//                postService.getAllPosts(0, 2, PostSortOrder.DATE_FRESHER);
-//
-//        assertEquals(2, posts.size());
-//        assertEquals(MOCK_POST_FIFTH_HEADING, posts.get(0).getHeading());
-//        assertEquals(MOCK_POST_FORTH_HEADING, posts.get(1).getHeading());
-//    }
-//
-//    @Test
-//    public void get_all_posts_page_1_limit_2_with_tags_case() {
-//        List<PostDtoWithCommentQuantity> posts =
-//                postService.getAllPosts(1, 2, PostSortOrder.DATE_FRESHER);
-//
-//        assertEquals(2, posts.size());
-//        assertEquals(MOCK_POST_THIRD_HEADING, posts.get(0).getHeading());
-//        assertEquals(MOCK_POST_SECOND_HEADING, posts.get(1).getHeading());
-//    }
-//
-//    @Test
-//    @Tag("excludeBeforeEach")
-//    public void get_all_posts_no_posts_in_db_with_tags_case() {
-//        List<PostDtoWithCommentQuantity> posts =
-//                postService.getAllPosts(0, 15, PostSortOrder.DATE_FRESHER);
-//
-//        assertEquals(0, posts.size());
-//    }
-//
+    @Test
+    public void get_all_posts_date_older_sort_with_tags_case() {
+        List<String> tags = List.of(MOCK_TAG_FIRST);
+        List<PostDtoWithCommentQuantity> posts =
+                postService.getAllPosts(0, 15, tags, PostSortOrder.DATE_OLDER);
 
+        assertEquals(2, posts.size());
+        assertEquals(MOCK_POST_FIRST_HEADING, posts.get(0).getHeading());
+        assertEquals(MOCK_POST_SECOND_HEADING, posts.get(1).getHeading());
+    }
 
+    @Test
+    public void get_all_posts_likes_more_sort_with_tags_case() {
+        List<String> tags = List.of(MOCK_TAG_SECOND);
 
+        postService.likePost(3);
 
+        List<PostDtoWithCommentQuantity> posts =
+                postService.getAllPosts(0, 15, tags, PostSortOrder.LIKES_MORE);
 
+        assertEquals(2, posts.size());
+        assertEquals(MOCK_POST_THIRD_HEADING, posts.get(0).getHeading());
+        assertEquals(MOCK_POST_FORTH_HEADING, posts.get(1).getHeading());
+    }
 
+    @Test
+    public void get_all_posts_likes_less_sort_with_tags_case() {
+        List<String> tags = List.of(MOCK_TAG_SECOND);
 
+        postService.likePost(3);
 
+        List<PostDtoWithCommentQuantity> posts =
+                postService.getAllPosts(0, 15, tags, PostSortOrder.LIKES_LESS);
 
-
-
-
+        assertEquals(2, posts.size());
+        assertEquals(MOCK_POST_FORTH_HEADING, posts.get(0).getHeading());
+        assertEquals(MOCK_POST_THIRD_HEADING, posts.get(1).getHeading());
+    }
 
     @Test
     public void get_one_post_by_id_normal_case() {
@@ -444,92 +403,106 @@ class PostServiceTest {
         });
     }
 
-//    @Test
-//    public void create_post_normal_case() {
-//        String heading = "test heading";
-//        String text = "test post's text";
-//
-//        CreatePostDto dto = new CreatePostDto();
-//        dto.setHeading(heading);
-//        dto.setText(text);
-//
-//        PostDto postDto = postService.createPost(dto);
-//
-//        assertEquals(heading, postDto.getHeading());
-//        assertEquals(text, postDto.getText());
-//    }
-//
-//    @Test
-//    public void update_post_normal_case() {
-//        long id = 1;
-//        String heading = "Updated " + MOCK_POST_FIRST_HEADING;
-//        String text = "Updated " + MOCK_POST_FIRST_HEADING;
-//
-//        PostDtoWithComments postForUpdate = postService.getOnePostById(id);
-//
-//        assertEquals(MOCK_POST_FIRST_HEADING, postForUpdate.getHeading());
-//
-//        UpdatePostDto dto = new UpdatePostDto();
-//        dto.setId(id);
-//        dto.setHeading(heading);
-//        dto.setText(text);
-//
-//        PostDto updatedPost = postService.updatePost(dto);
-//
-//        assertEquals(id, updatedPost.getId());
-//        assertEquals(heading, updatedPost.getHeading());
-//        assertEquals(text, updatedPost.getText());
-//        assertTrue(updatedPost.getIsUpdated());
-//    }
-//
-//    @Test
-//    public void update_post_post_is_not_found_case() {
-//        long notFoundId = 1000;
-//        String heading = "Updated post";
-//        String text = "Updated posts text";
-//
-//        UpdatePostDto dto = new UpdatePostDto();
-//        dto.setId(notFoundId);
-//        dto.setHeading(heading);
-//        dto.setText(text);
-//
-//        assertThrows(NotFoundException.class, () -> {
-//            postService.updatePost(dto);
-//        });
-//    }
-//
-//    @Test
-//    public void update_post_user_is_not_authorized_to_update_post_case() {
-//        // Other user created a post
-//        Role userRole = modelMapper.map(roleService.getUserRole(), Role.class);
-//        User newUser = addMockUserToDB(
-//                "newUser@gmail.com",
-//                "newUserLogin",
-//                "newUserPassword",
-//                LocalDateTime.now(),
-//                userRole
-//        );
-//
-//        Post post = addMockPostsToDB(
-//                "Simple post name",
-//                "Simple post text",
-//                LocalDateTime.now(),
-//                newUser
-//        );
-//
-//        // And we're trying to change it with our token
-//        String heading = "Updated post";
-//        String text = "Updated posts text";
-//
-//        UpdatePostDto dto = new UpdatePostDto();
-//        dto.setId(post.getId());
-//        dto.setHeading(heading);
-//        dto.setText(text);
-//
-//        assertThrows(ForbiddenException.class, () -> {
-//            postService.updatePost(dto);
-//        });
-//    }
+    @Test
+    public void create_post_normal_case() {
+        String heading = "test heading";
+        String text = "test post's text";
+        List<String> tags = List.of("wow", "kek");
+
+        CreatePostDto dto = new CreatePostDto();
+        dto.setHeading(heading);
+        dto.setText(text);
+        dto.setTags(tags);
+
+        PostDto postDto = postService.createPost(dto);
+
+        assertEquals(heading, postDto.getHeading());
+        assertEquals(text, postDto.getText());
+        assertEquals(tags.size(), postDto.getTags().size());
+
+    }
+
+    @Test
+    public void update_post_normal_case() {
+        long id = 1;
+        String heading = "Updated " + MOCK_POST_FIRST_HEADING;
+        String text = "Updated " + MOCK_POST_FIRST_HEADING;
+        List<String> tags = List.of("wow", "kek");
+
+        PostDtoWithComments postForUpdate = postService.getOnePostById(id);
+
+        assertEquals(MOCK_POST_FIRST_HEADING, postForUpdate.getHeading());
+
+        UpdatePostDto dto = new UpdatePostDto();
+        dto.setId(id);
+        dto.setHeading(heading);
+        dto.setText(text);
+        dto.setTags(tags);
+
+        PostDto updatedPost = postService.updatePost(dto);
+
+        assertEquals(id, updatedPost.getId());
+        assertEquals(heading, updatedPost.getHeading());
+        assertEquals(text, updatedPost.getText());
+        assertTrue(updatedPost.getIsUpdated());
+        assertEquals(tags.size(), updatedPost.getTags().size());
+    }
+
+    @Test
+    public void update_post_post_is_not_found_case() {
+        long notFoundId = 1000;
+        String heading = "Updated post";
+        String text = "Updated posts text";
+        List<String> tags = List.of("wow", "kek");
+
+        UpdatePostDto dto = new UpdatePostDto();
+        dto.setId(notFoundId);
+        dto.setHeading(heading);
+        dto.setText(text);
+        dto.setTags(tags);
+
+        assertThrows(NotFoundException.class, () -> {
+            postService.updatePost(dto);
+        });
+    }
+
+    @Test
+    public void update_post_user_is_not_authorized_to_update_post_case() {
+        // Other user created a post
+        Role userRole = modelMapper.map(roleService.getUserRole(), Role.class);
+        User newUser = addMockUserToDB(
+                "newUser@gmail.com",
+                "newUserLogin",
+                "newUserPassword",
+                LocalDateTime.now(),
+                userRole
+        );
+
+        Tag tag = addMockTagToDB("wow");
+
+        Post post = addMockPostsToDB(
+                "Simple post name",
+                "Simple post text",
+                LocalDateTime.now(),
+                newUser,
+                Set.of(tag)
+        );
+
+        // And we're trying to change it with our token
+        String heading = "Updated post";
+        String text = "Updated posts text";
+        List<String> tags = List.of("new", "kek");
+
+        UpdatePostDto dto = new UpdatePostDto();
+        dto.setId(post.getId());
+        dto.setHeading(heading);
+        dto.setText(text);
+        dto.setTags(tags);
+
+        assertThrows(ForbiddenException.class, () -> {
+            postService.updatePost(dto);
+        });
+    }
 
     @Test
     public void delete_post_normal_case() {
@@ -547,30 +520,33 @@ class PostServiceTest {
         });
     }
 
-//    @Test
-//    public void delete_post_user_is_not_authorized_to_delete_post_case() {
-//        // Other user created a post
-//        Role userRole = modelMapper.map(roleService.getUserRole(), Role.class);
-//        User newUser = addMockUserToDB(
-//                "newUser@gmail.com",
-//                "newUserLogin",
-//                "newUserPassword",
-//                LocalDateTime.now(),
-//                userRole
-//        );
-//
-//        Post post = addMockPostsToDB(
-//                "Simple post name",
-//                "Simple post text",
-//                LocalDateTime.now(),
-//                newUser
-//        );
-//
-//        // And we're trying to delete it with our token
-//        assertThrows(ForbiddenException.class, () -> {
-//            postService.deletePost(post.getId());
-//        });
-//    }
+    @Test
+    public void delete_post_user_is_not_authorized_to_delete_post_case() {
+        // Other user created a post
+        Role userRole = modelMapper.map(roleService.getUserRole(), Role.class);
+        User newUser = addMockUserToDB(
+                "newUser@gmail.com",
+                "newUserLogin",
+                "newUserPassword",
+                LocalDateTime.now(),
+                userRole
+        );
+
+        Tag tag = addMockTagToDB("wow");
+
+        Post post = addMockPostsToDB(
+                "Simple post name",
+                "Simple post text",
+                LocalDateTime.now(),
+                newUser,
+                Set.of(tag)
+        );
+
+        // And we're trying to delete it with our token
+        assertThrows(ForbiddenException.class, () -> {
+            postService.deletePost(post.getId());
+        });
+    }
 
     @Test
     public void like_post_normal_case() {
