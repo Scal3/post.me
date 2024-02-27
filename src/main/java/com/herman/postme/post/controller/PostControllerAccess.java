@@ -64,7 +64,7 @@ public class PostControllerAccess {
         log.debug("Exiting deletePost method");
     }
 
-    @PutMapping("/like/{id}")
+    @PutMapping(path = "/like/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public PostDto likePost(@PathVariable @Positive long id) {
         log.debug("Entering likePost method");
@@ -77,7 +77,7 @@ public class PostControllerAccess {
         return post;
     }
 
-    @DeleteMapping("/like/{id}")
+    @DeleteMapping(path = "/like/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public PostDto dislikePost(@PathVariable @Positive long id) {
         log.debug("Entering dislikePost method");
