@@ -3,6 +3,7 @@ package com.herman.postme.exception.handler;
 import com.herman.postme.exception.exceptionimp.*;
 import com.herman.postme.exception.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -75,6 +76,17 @@ public class ErrorHandler {
                 e.getCode(),
                 e.getError(),
                 e.getDescription(),
+                LocalDateTime.now()
+        );
+    }
+
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    @ExceptionHandler
+    public ErrorResponse handleError(MissingPathVariableException e) {
+        return new ErrorResponse(
+                405,
+                "Path variable is required",
+                e.getMessage(),
                 LocalDateTime.now()
         );
     }
