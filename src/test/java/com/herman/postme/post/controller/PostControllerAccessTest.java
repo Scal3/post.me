@@ -14,7 +14,6 @@ import com.herman.postme.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -773,9 +772,6 @@ class PostControllerAccessTest {
 
     @Test
     public void like_post_normal_case() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/free/posts" + "/3"))
-                .andExpect(status().isOk());
-
         mockMvc.perform(MockMvcRequestBuilders.put(RATE_POST_PATH + "/3"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
