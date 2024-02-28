@@ -4,6 +4,7 @@ import com.herman.postme.comment.dto.CommentDto;
 import com.herman.postme.comment.dto.CreateCommentDto;
 import com.herman.postme.comment.entity.Comment;
 import com.herman.postme.comment.repository.CommentRepository;
+import com.herman.postme.exception.exceptionimp.ForbiddenException;
 import com.herman.postme.exception.exceptionimp.InternalServerException;
 import com.herman.postme.exception.exceptionimp.NotFoundException;
 import com.herman.postme.post.dto.PostDtoWithComments;
@@ -80,6 +81,49 @@ public class CommentService {
         } catch (Throwable throwable) {
             log.warn("An unexpected exception has occurred " + throwable.getMessage());
             log.debug("Exiting createComment method");
+            throwable.printStackTrace();
+
+            throw new InternalServerException("Something went wrong");
+        }
+    }
+
+    @Transactional
+    public void deleteComment(long id) {
+        try {
+            log.debug("Entering deleteComment method");
+            log.debug("Got {} as id argument", id);
+
+            Comment commentEntity = commentRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException("Comment with id " + id + " is not found"));
+
+            String userEmail = (String) SecurityContextHolder.getContext()
+                    .getAuthentication()
+                    .getPrincipal();
+            log.debug("User email was found in SecurityContextHolder");
+
+            UserDto userDto = userService.findByEmail(userEmail);
+            log.debug("User was found by email");
+
+            if (commentEntity.getUser().getId() != userDto.getId()) {
+                throw new ForbiddenException("You are not authorized to delete this comment");
+            }
+
+            commentRepository.deleteById(id);
+            log.debug("Comment entity was deleted");
+            log.debug("Exiting deleteComment method");
+        } catch (NotFoundException exc) {
+            log.warn("Error has occurred {}", exc.getDescription());
+            log.debug("Exiting deleteComment method");
+
+            throw new NotFoundException(exc.getDescription());
+        } catch (ForbiddenException exc) {
+            log.warn("Error has occurred {}", exc.getDescription());
+            log.debug("Exiting deleteComment method");
+
+            throw new ForbiddenException(exc.getDescription());
+        } catch (Throwable throwable) {
+            log.warn("An unexpected exception has occurred " + throwable.getMessage());
+            log.debug("Exiting deleteComment method");
             throwable.printStackTrace();
 
             throw new InternalServerException("Something went wrong");
