@@ -1,6 +1,6 @@
 package com.herman.postme.comment.service;
 
-import com.herman.postme.comment.dto.CommentDto;
+import com.herman.postme.comment.dto.CreateCommentDto;
 import com.herman.postme.comment.entity.Comment;
 import com.herman.postme.exception.exceptionimp.NotFoundException;
 import com.herman.postme.post.entity.Post;

@@ -1,7 +1,7 @@
 package com.herman.postme.comment.controller;
 
 import com.herman.postme.comment.dto.CommentDto;
-import com.herman.postme.comment.entity.Comment;
+import com.herman.postme.comment.dto.CreateCommentDto;
 import com.herman.postme.comment.service.CommentService;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/comments")
+@RequestMapping("/api/access/comments")
 @RequiredArgsConstructor
-public class CommentController {
+public class CommentControllerAccess {
 
     private final CommentService commentService;
 
@@ -22,11 +22,11 @@ public class CommentController {
     @PostMapping(
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Comment createComment(@RequestBody @Valid CommentDto dto) {
+    public CommentDto createComment(@RequestBody @Valid CreateCommentDto dto) {
         log.debug("Entering createComment method");
         log.debug("Got {} as dto argument", dto);
 
-        Comment comment = commentService.createComment(dto);
+        CommentDto comment = commentService.createComment(dto);
 
         log.debug("Exiting createComment method");
 

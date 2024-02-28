@@ -2,7 +2,7 @@ package com.herman.postme.comment.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.herman.postme.comment.dto.CommentDto;
+import com.herman.postme.comment.dto.CreateCommentDto;
 import com.herman.postme.post.entity.Post;
 import com.herman.postme.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
