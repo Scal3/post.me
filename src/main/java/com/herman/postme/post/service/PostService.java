@@ -311,8 +311,7 @@ public class PostService {
         }
     }
 
-    // Try to use different isolation lvl isolation = Isolation.REPEATABLE_READ
-    // @Transactional
+    @Transactional
     public PostDto likePost(long id) {
         try {
             log.debug("Entering likePost method");
@@ -381,6 +380,7 @@ public class PostService {
         }
     }
 
+    @Transactional
     public PostDto dislikePost(long id) {
         try {
             log.debug("Entering dislikePost method");
