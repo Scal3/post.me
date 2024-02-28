@@ -47,6 +47,7 @@ public class PostService {
 
     private final ModelMapper modelMapper;
 
+    @Transactional(readOnly = true)
     public List<PostDtoWithCommentQuantity> getAllPosts(
             int page, int limit, List<String> tags, PostSortOrder sortBy
     ) {
@@ -80,6 +81,7 @@ public class PostService {
         }
     }
 
+    @Transactional(readOnly = true)
     public PostDtoWithComments getOnePostById(long id) {
         try {
             log.debug("Entering getOnePostById method");
@@ -108,6 +110,7 @@ public class PostService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<PostDtoWithCommentQuantity> getUsersPostById(
             long userId, int page, int limit, PostSortOrder sortBy
     ) {
@@ -460,12 +463,12 @@ public class PostService {
             case DATE_OLDER:
                 posts = postRepository.findAll(pageableWithOlderSort).getContent();
                 break;
-            case COMMENTS_MORE:
-                posts = postRepository.findAllOrderByCommentsDesc(pageable);
-                break;
-            case COMMENTS_LESS:
-                posts = postRepository.findAllOrderByCommentsAsc(pageable);
-                break;
+//            case COMMENTS_MORE:
+//                posts = postRepository.findAllOrderByCommentsDesc(pageable);
+//                break;
+//            case COMMENTS_LESS:
+//                posts = postRepository.findAllOrderByCommentsAsc(pageable);
+//                break;
             case LIKES_MORE:
                 posts = postRepository.findAllOrderByLikesDesc(pageable);
                 break;
@@ -493,12 +496,12 @@ public class PostService {
             case DATE_OLDER:
                 posts = postRepository.findAllByTagsOrderByCreatedAtAsc(tags, pageableWithOlderSort);
                 break;
-            case COMMENTS_MORE:
-                posts = postRepository.findAllByTagsOrderByCommentsDesc(tags, pageable);
-                break;
-            case COMMENTS_LESS:
-                posts = postRepository.findAllByTagsOrderByCommentsAsc(tags, pageable);
-                break;
+//            case COMMENTS_MORE:
+//                posts = postRepository.findAllByTagsOrderByCommentsDesc(tags, pageable);
+//                break;
+//            case COMMENTS_LESS:
+//                posts = postRepository.findAllByTagsOrderByCommentsAsc(tags, pageable);
+//                break;
             case LIKES_MORE:
                 posts = postRepository.findAllByTagsOrderByLikesDesc(tags, pageable);
                 break;
@@ -524,12 +527,12 @@ public class PostService {
             case DATE_OLDER:
                 posts = postRepository.findAllByUserId(userId, pageableWithOlderSort);
                 break;
-            case COMMENTS_MORE:
-                posts = postRepository.findAllByUserIdOrderByCommentCountDesc(userId, pageable);
-                break;
-            case COMMENTS_LESS:
-                posts = postRepository.findAllByUserIdOrderByCommentCountAsc(userId, pageable);
-                break;
+//            case COMMENTS_MORE:
+//                posts = postRepository.findAllByUserIdOrderByCommentCountDesc(userId, pageable);
+//                break;
+//            case COMMENTS_LESS:
+//                posts = postRepository.findAllByUserIdOrderByCommentCountAsc(userId, pageable);
+//                break;
             case LIKES_MORE:
                 posts = postRepository.findAllByUserIdOrderByLikesDesc(userId, pageable);
                 break;
