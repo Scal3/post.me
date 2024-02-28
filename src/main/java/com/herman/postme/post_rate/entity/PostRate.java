@@ -4,6 +4,7 @@ import com.herman.postme.post.entity.Post;
 import com.herman.postme.user.entity.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -16,10 +17,12 @@ public class PostRate {
     @EmbeddedId
     private PostRateId id;
 
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "post_id", insertable = false, updatable = false)
     private Post post;
