@@ -8,6 +8,7 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -21,6 +22,9 @@ import java.util.List;
 @RequestMapping("/api/free/posts")
 @RequiredArgsConstructor
 public class PostController {
+
+    @Value("${limit.size.constraint}")
+    private int limitSizeConstraint;
 
     private final PostService postService;
 
@@ -37,6 +41,11 @@ public class PostController {
                 "Got {} value as page argument, " +
                 "{} value as limit argument, " +
                 "{} value as sortBy argument", page, limit, sortBy);
+
+        if (limit > limitSizeConstraint) {
+            limit = limitSizeConstraint;
+            log.debug("Param limit is too big, setting up to {}", limitSizeConstraint);
+        }
 
         List<PostDtoWithCommentQuantity> posts = postService.getAllPosts(page, limit, tags, sortBy);
 
@@ -73,6 +82,11 @@ public class PostController {
                 "{} value as page argument, " +
                 "{} value as limit argument, " +
                 "{} value as sortBy argument", userId, page, limit, sortBy);
+
+        if (limit > limitSizeConstraint) {
+            limit = limitSizeConstraint;
+            log.debug("Param limit is too big, setting up to {}", limitSizeConstraint);
+        }
 
         List<PostDtoWithCommentQuantity> posts =
                 postService.getUsersPostById(userId, page, limit, sortBy);

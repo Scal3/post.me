@@ -5,6 +5,7 @@ import com.herman.postme.comment.enums.CommentSortOrder;
 import com.herman.postme.comment.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -20,6 +21,9 @@ import java.util.List;
 @RequestMapping("/api/free/comments")
 @RequiredArgsConstructor
 public class CommentController {
+
+    @Value("${limit.size.constraint}")
+    private int limitSizeConstraint;
 
     private final CommentService commentService;
 
@@ -37,6 +41,11 @@ public class CommentController {
                 "{} value as page argument, " +
                 "{} value as limit argument, " +
                 "{} value as sortBy argument", id, page, limit, sortBy);
+
+        if (limit > limitSizeConstraint) {
+            limit = limitSizeConstraint;
+            log.debug("Param limit is too big, setting up to {}", limitSizeConstraint);
+        }
 
         List<CommentDto> comments = commentService.getAllPostComments(id, page, limit, sortBy);
 
