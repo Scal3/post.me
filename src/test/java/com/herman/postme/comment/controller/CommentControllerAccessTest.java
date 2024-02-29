@@ -1,12 +1,9 @@
-package com.herman.postme.comment.service;
+package com.herman.postme.comment.controller;
 
-import com.herman.postme.comment.dto.CommentDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.herman.postme.comment.dto.CreateCommentDto;
 import com.herman.postme.comment.entity.Comment;
-import com.herman.postme.comment.enums.CommentSortOrder;
 import com.herman.postme.comment.repository.CommentRepository;
-import com.herman.postme.exception.exceptionimp.ForbiddenException;
-import com.herman.postme.exception.exceptionimp.NotFoundException;
 import com.herman.postme.post.entity.Post;
 import com.herman.postme.post.repository.PostRepository;
 import com.herman.postme.role.entity.Role;
@@ -18,27 +15,38 @@ import com.herman.postme.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-// I added H2 in maven test scope for tests
 @SpringBootTest
+@AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class CommentServiceTest {
+public class CommentControllerAccessTest {
+
+    private static final String CREATE_COMMENT_PATH = "/api/access/comments";
+
+    private static final String DELETE_COMMENT_PATH = "/api/access/comments";
 
     private static final String MOCK_USER_EMAIL = "user1@user.com";
 
@@ -52,13 +60,11 @@ public class CommentServiceTest {
 
     private static final String MOCK_COMMENT_FIRST_TEXT = "comment number 1";
 
-    private static final String MOCK_COMMENT_SECOND_TEXT = "comment number 2";
+    private final MockMvc mockMvc;
 
-    private static final String MOCK_COMMENT_THIRD_TEXT = "comment number 3";
+    private final ObjectMapper objectMapper;
 
     private final PostRepository postRepository;
-
-    private final CommentService commentService;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -66,20 +72,14 @@ public class CommentServiceTest {
 
     private final TagRepository tagRepository;
 
+    private final CommentRepository commentRepository;
+
     private final ModelMapper modelMapper;
 
     private final RoleService roleService;
 
-    private final CommentRepository commentRepository;
-
     @BeforeEach
-    public void setup(TestInfo info) {
-        boolean isExcludeSetup = info.getTags()
-                .stream()
-                .anyMatch((tag) -> tag.equals("excludeBeforeEach"));
-
-        if (isExcludeSetup) return;
-
+    public void setup() {
         Tag tagFirst = addMockTagToDB(MOCK_TAG_FIRST);
         Role userRole = modelMapper.map(roleService.getUserRole(), Role.class);
         User mockUser = addMockUserToDB(
@@ -101,12 +101,8 @@ public class CommentServiceTest {
         );
 
         LocalDateTime commentWasCreatedFirst = postWasCreatedFirst.plusDays(1);
-        LocalDateTime commentWasCreatedSecond = postWasCreatedFirst.plusDays(2);
-        LocalDateTime commentWasCreatedThird = postWasCreatedFirst.plusDays(3);
 
         addMockCommentToDB(MOCK_COMMENT_FIRST_TEXT, commentWasCreatedFirst, mockPost, mockUser);
-        addMockCommentToDB(MOCK_COMMENT_SECOND_TEXT, commentWasCreatedSecond, mockPost, mockUser);
-        addMockCommentToDB(MOCK_COMMENT_THIRD_TEXT, commentWasCreatedThird, mockPost, mockUser);
 
         setAuthenticationToMockUser(
                 MOCK_USER_EMAIL,
@@ -175,110 +171,142 @@ public class CommentServiceTest {
     }
 
     @Test
-    public void getAllPostComments_date_fresher_sort_case() {
-        List<CommentDto> comments =
-                commentService.getAllPostComments(1, 0 , 15, CommentSortOrder.DATE_FRESHER);
-
-        assertEquals(3, comments.size());
-        assertEquals(MOCK_COMMENT_THIRD_TEXT, comments.get(0).getText());
-        assertEquals(MOCK_COMMENT_SECOND_TEXT, comments.get(1).getText());
-        assertEquals(MOCK_COMMENT_FIRST_TEXT, comments.get(2).getText());
-    }
-
-    @Test
-    public void getAllPostComments_date_older_sort_case() {
-        List<CommentDto> comments =
-                commentService.getAllPostComments(1, 0 , 15, CommentSortOrder.DATE_OLDER);
-
-        assertEquals(3, comments.size());
-        assertEquals(MOCK_COMMENT_FIRST_TEXT, comments.get(0).getText());
-        assertEquals(MOCK_COMMENT_SECOND_TEXT, comments.get(1).getText());
-        assertEquals(MOCK_COMMENT_THIRD_TEXT, comments.get(2).getText());
-    }
-
-    @Test
-    public void getAllPostComments_post_id_is_not_found_case() {
-        assertThrows(NotFoundException.class,
-                () -> commentService.getAllPostComments(1000, 0 , 15, CommentSortOrder.DATE_OLDER));
-    }
-
-    @org.junit.jupiter.api.Tag("excludeBeforeEach")
-    @Test
-    public void getAllPostComments_no_comments_in_db_case() {
-        Tag tagFirst = addMockTagToDB(MOCK_TAG_FIRST);
-        Role userRole = modelMapper.map(roleService.getUserRole(), Role.class);
-        User mockUser = addMockUserToDB(
-                MOCK_USER_EMAIL,
-                MOCK_USER_LOGIN,
-                MOCK_USER_PASSWORD,
-                LocalDateTime.now(),
-                userRole
-        );
-
-        LocalDateTime wasCreatedFirst =
-                LocalDateTime.of(2020, Month.JULY, 20, 12, 30);
-
-        Set<Tag> firstTagSet = new HashSet<>();
-        firstTagSet.add(tagFirst);
-
-        Post mockPost =
-                addMockPostsToDB(MOCK_POST_FIRST_HEADING, "post number 1", wasCreatedFirst, mockUser, firstTagSet);
-
-        List<CommentDto> comments = commentService.getAllPostComments(
-                mockPost.getId(), 0 , 15, CommentSortOrder.DATE_FRESHER);
-
-        assertEquals(0, comments.size());
-    }
-
-    @Test
-    public void createComment_normal_case() {
-        String commentText = "new comment wow!!!";
-        long postId = 1;
+    public void createComment_normal_case() throws Exception {
+        String commentText = "Text must be at least 10 characters!";
+        long firstPostId = 1;
 
         CreateCommentDto createCommentDto = new CreateCommentDto();
         createCommentDto.setText(commentText);
-        createCommentDto.setPostId(postId);
+        createCommentDto.setPostId(firstPostId);
 
-        CommentDto commentDto = commentService.createComment(createCommentDto);
+        String requestBodyJson = objectMapper.writeValueAsString(createCommentDto);
 
-        assertEquals(commentText, commentDto.getText());
-        assertEquals(MOCK_USER_LOGIN, commentDto.getUsername());
+        mockMvc.perform(MockMvcRequestBuilders.post(CREATE_COMMENT_PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBodyJson))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
 
+                .andExpect(jsonPath("username").value(MOCK_USER_LOGIN))
+                .andExpect(jsonPath("text").value(commentText));
     }
 
     @Test
-    public void createComment_post_is_not_found_case() {
-        String commentText = "new comment wow!!!";
+    public void createComment_no_postId_field_in_dto_case() throws Exception {
+        String commentText = "Text must be at least 10 characters!";
+
+        CreateCommentDto createCommentDto = new CreateCommentDto();
+        createCommentDto.setText(commentText);
+
+        String requestBodyJson = objectMapper.writeValueAsString(createCommentDto);
+
+        mockMvc.perform(MockMvcRequestBuilders.post(CREATE_COMMENT_PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBodyJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void createComment_no_text_field_in_dto_case() throws Exception {
+        long firstPostId = 1;
+
+        CreateCommentDto createCommentDto = new CreateCommentDto();
+        createCommentDto.setPostId(firstPostId);
+
+        String requestBodyJson = objectMapper.writeValueAsString(createCommentDto);
+
+        mockMvc.perform(MockMvcRequestBuilders.post(CREATE_COMMENT_PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBodyJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void createComment_text_field_in_dto_is_less_than_10_characters_case() throws Exception {
+        String smallText = "Small";
+        long firstPostId = 1;
+
+        CreateCommentDto createCommentDto = new CreateCommentDto();
+        createCommentDto.setText(smallText);
+        createCommentDto.setPostId(firstPostId);
+
+        String requestBodyJson = objectMapper.writeValueAsString(createCommentDto);
+
+        mockMvc.perform(MockMvcRequestBuilders.post(CREATE_COMMENT_PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBodyJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void createComment_text_field_in_dto_is_more_than_255_characters_case() throws Exception {
+        String largeText = "1234567890".repeat(30);
+        long firstPostId = 1;
+
+        CreateCommentDto createCommentDto = new CreateCommentDto();
+        createCommentDto.setText(largeText);
+        createCommentDto.setPostId(firstPostId);
+
+        String requestBodyJson = objectMapper.writeValueAsString(createCommentDto);
+
+        mockMvc.perform(MockMvcRequestBuilders.post(CREATE_COMMENT_PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBodyJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void createComment_post_id_is_not_found_case() throws Exception {
+        String commentText = "Text must be at least 10 characters!";
         long notFoundPostId = 1000;
 
         CreateCommentDto createCommentDto = new CreateCommentDto();
         createCommentDto.setText(commentText);
         createCommentDto.setPostId(notFoundPostId);
 
-        assertThrows(NotFoundException.class, () -> commentService.createComment(createCommentDto));
+        String requestBodyJson = objectMapper.writeValueAsString(createCommentDto);
+
+        mockMvc.perform(MockMvcRequestBuilders.post(CREATE_COMMENT_PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBodyJson))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    public void deleteComment_normal_case() {
-        long mockCommentFirstId = 1;
+    public void createComment_post_id_is_negative_case() throws Exception {
+        String commentText = "Text must be at least 10 characters!";
+        long negativePostId = -1;
 
-        commentService.deleteComment(mockCommentFirstId);
+        CreateCommentDto createCommentDto = new CreateCommentDto();
+        createCommentDto.setText(commentText);
+        createCommentDto.setPostId(negativePostId);
 
-        List<CommentDto> comments =
-                commentService.getAllPostComments(1, 0 , 15, CommentSortOrder.DATE_FRESHER);
+        String requestBodyJson = objectMapper.writeValueAsString(createCommentDto);
 
-        int sizeAfterDeleting = 2;
-
-        assertEquals(sizeAfterDeleting, comments.size());
+        mockMvc.perform(MockMvcRequestBuilders.post(CREATE_COMMENT_PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBodyJson))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void deleteComment_comment_is_not_found_case() {
-        assertThrows(NotFoundException.class, () -> commentService.deleteComment(1000));
+    public void deleteComment_normal_case() throws Exception {
+        long firstCommentId = 1;
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(DELETE_COMMENT_PATH + "/" + firstCommentId))
+                .andExpect(status().isNoContent());
     }
 
     @Test
-    public void deleteComment_comment_user_is_not_authorized_to_delete_comment_case() {
+    public void deleteComment_comment_is_not_found_case() throws Exception {
+        long notFoundCommentId = 1000;
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(DELETE_COMMENT_PATH + "/" + notFoundCommentId))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void deleteComment_comment_user_is_not_authorized_to_delete_comment_case() throws Exception {
         // Other user created a post and a comment
         Role userRole = modelMapper.map(roleService.getUserRole(), Role.class);
         User newUser = addMockUserToDB(
@@ -303,8 +331,7 @@ public class CommentServiceTest {
                 addMockCommentToDB("My new amazing comment!", LocalDateTime.now(), newPost, newUser);
 
         // And we're trying to delete the comment with our token
-        assertThrows(ForbiddenException.class, () -> {
-            commentService.deleteComment(newComment.getId());
-        });
+        mockMvc.perform(MockMvcRequestBuilders.delete(DELETE_COMMENT_PATH + "/" + newComment.getId()))
+                .andExpect(status().isForbidden());
     }
 }

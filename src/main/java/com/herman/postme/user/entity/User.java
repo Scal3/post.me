@@ -1,5 +1,6 @@
 package com.herman.postme.user.entity;
 
+import com.herman.postme.comment.entity.Comment;
 import com.herman.postme.post.entity.Post;
 import com.herman.postme.role.entity.Role;
 import lombok.Data;
@@ -42,4 +43,7 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Comment> comments;
 }
