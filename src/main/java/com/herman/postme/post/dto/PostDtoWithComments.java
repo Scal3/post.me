@@ -1,6 +1,6 @@
 package com.herman.postme.post.dto;
 
-import com.herman.postme.comment.entity.Comment;
+import com.herman.postme.comment.dto.CommentDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,5 +12,5 @@ import java.util.List;
 @AllArgsConstructor
 public class PostDtoWithComments extends PostDto {
 
-    private List<Comment> comments;
+    private List<CommentDto> comments;
 }
