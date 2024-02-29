@@ -1,11 +1,13 @@
 package com.herman.postme;
 
+import com.herman.postme.comment.dto.CommentDto;
 import com.herman.postme.comment.entity.Comment;
 import com.herman.postme.post.dto.PostDto;
 import com.herman.postme.post.dto.PostDtoWithCommentQuantity;
 import com.herman.postme.post.dto.PostDtoWithComments;
 import com.herman.postme.post.entity.Post;
 import com.herman.postme.post_rate.entity.PostRate;
+import com.herman.postme.user.entity.User;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
@@ -44,6 +46,20 @@ public class PostMeConfig {
                     List<Comment> comments = context.getSource();
                     return comments != null ? comments.size() : 0;
                 };
+
+        Converter<User, String> commentsUsernameConverter =
+                (MappingContext<User, String> context) -> {
+                    User user = context.getSource();
+                    return user.getLogin();
+                };
+
+        TypeMap<Comment, CommentDto> commentToCommentDtoWithUsernameMapper =
+                modelMapper.createTypeMap(Comment.class, CommentDto.class);
+
+        commentToCommentDtoWithUsernameMapper.addMappings(
+                mapper -> mapper.using(commentsUsernameConverter)
+                        .map(Comment::getUser, CommentDto::setUsername)
+        );
 
         TypeMap<Post, PostDtoWithComments> postToPostDtoWithCommentsMapper =
                 modelMapper.createTypeMap(Post.class, PostDtoWithComments.class);

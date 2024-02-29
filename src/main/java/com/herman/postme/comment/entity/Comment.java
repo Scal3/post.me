@@ -5,6 +5,7 @@ import javax.persistence.*;
 import com.herman.postme.user.entity.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -28,10 +29,12 @@ public class Comment {
             nullable = false)
     private LocalDateTime createdAt;
 
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
 
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
