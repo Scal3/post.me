@@ -1,5 +1,7 @@
 package com.herman.postme.post.service;
 
+import com.herman.postme.comment.dto.CreateCommentDto;
+import com.herman.postme.comment.service.CommentService;
 import com.herman.postme.exception.exceptionimp.ForbiddenException;
 import com.herman.postme.exception.exceptionimp.NotFoundException;
 import com.herman.postme.post.dto.*;
@@ -66,6 +68,8 @@ class PostServiceTest {
     private final PostService postService;
 
     private final RoleService roleService;
+
+    private final CommentService commentService;
 
     private final ModelMapper modelMapper;
 
@@ -224,6 +228,36 @@ class PostServiceTest {
     }
 
     @Test
+    public void getAllPosts_comments_more_sort_no_tags_case() {
+        CreateCommentDto createCommentDto = new CreateCommentDto();
+        createCommentDto.setPostId(1L);
+        createCommentDto.setText("Comment text wow");
+
+        commentService.createComment(createCommentDto);
+
+        List<PostDtoWithCommentQuantity> posts =
+                postService.getAllPosts(0, 15, null, PostSortOrder.COMMENTS_MORE);
+
+        assertEquals(5, posts.size());
+        assertEquals(MOCK_POST_FIRST_HEADING, posts.get(0).getHeading());
+    }
+
+    @Test
+    public void getAllPosts_comments_less_sort_no_tags_case() {
+        CreateCommentDto createCommentDto = new CreateCommentDto();
+        createCommentDto.setPostId(1L);
+        createCommentDto.setText("Comment text wow");
+
+        commentService.createComment(createCommentDto);
+
+        List<PostDtoWithCommentQuantity> posts =
+                postService.getAllPosts(0, 15, null, PostSortOrder.COMMENTS_LESS);
+
+        assertEquals(5, posts.size());
+        assertEquals(MOCK_POST_FIRST_HEADING, posts.get(4).getHeading());
+    }
+
+    @Test
     public void get_all_posts_page_0_limit_2_no_tags_case() {
         List<PostDtoWithCommentQuantity> posts =
                 postService.getAllPosts(0, 2, null, PostSortOrder.DATE_FRESHER);
@@ -303,6 +337,42 @@ class PostServiceTest {
     }
 
     @Test
+    public void getAllPosts_comments_more_sort_with_tags_case() {
+        List<String> tags = List.of(MOCK_TAG_FIRST);
+
+        CreateCommentDto createCommentDto = new CreateCommentDto();
+        createCommentDto.setPostId(1L);
+        createCommentDto.setText("Comment text wow");
+
+        commentService.createComment(createCommentDto);
+
+        List<PostDtoWithCommentQuantity> posts =
+                postService.getAllPosts(0, 15, tags, PostSortOrder.COMMENTS_MORE);
+
+        assertEquals(2, posts.size());
+        assertEquals(MOCK_POST_FIRST_HEADING, posts.get(0).getHeading());
+        assertEquals(MOCK_POST_SECOND_HEADING, posts.get(1).getHeading());
+    }
+
+    @Test
+    public void getAllPosts_comments_less_sort_with_tags_case() {
+        List<String> tags = List.of(MOCK_TAG_FIRST);
+
+        CreateCommentDto createCommentDto = new CreateCommentDto();
+        createCommentDto.setPostId(1L);
+        createCommentDto.setText("Comment text wow");
+
+        commentService.createComment(createCommentDto);
+
+        List<PostDtoWithCommentQuantity> posts =
+                postService.getAllPosts(0, 15, tags, PostSortOrder.COMMENTS_LESS);
+
+        assertEquals(2, posts.size());
+        assertEquals(MOCK_POST_SECOND_HEADING, posts.get(0).getHeading());
+        assertEquals(MOCK_POST_FIRST_HEADING, posts.get(1).getHeading());
+    }
+
+    @Test
     public void get_one_post_by_id_normal_case() {
         PostDtoWithComments post = postService.getOnePostById(1L);
 
@@ -356,6 +426,36 @@ class PostServiceTest {
 
         assertEquals(5, posts.size());
         assertEquals(MOCK_POST_THIRD_HEADING, posts.get(4).getHeading());
+    }
+
+    @Test
+    public void getUsersPostById_comments_more_sort_case() {
+        CreateCommentDto createCommentDto = new CreateCommentDto();
+        createCommentDto.setPostId(1L);
+        createCommentDto.setText("Comment text wow");
+
+        commentService.createComment(createCommentDto);
+
+        List<PostDtoWithCommentQuantity> posts =
+                postService.getUsersPostById(2, 0, 15, PostSortOrder.COMMENTS_MORE);
+
+        assertEquals(5, posts.size());
+        assertEquals(MOCK_POST_FIRST_HEADING, posts.get(0).getHeading());
+    }
+
+    @Test
+    public void getUsersPostById_comments_less_sort_case() {
+        CreateCommentDto createCommentDto = new CreateCommentDto();
+        createCommentDto.setPostId(1L);
+        createCommentDto.setText("Comment text wow");
+
+        commentService.createComment(createCommentDto);
+
+        List<PostDtoWithCommentQuantity> posts =
+                postService.getUsersPostById(2, 0, 15, PostSortOrder.COMMENTS_LESS);
+
+        assertEquals(5, posts.size());
+        assertEquals(MOCK_POST_FIRST_HEADING, posts.get(4).getHeading());
     }
 
     @Test
