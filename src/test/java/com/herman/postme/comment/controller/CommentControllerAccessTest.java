@@ -48,6 +48,8 @@ public class CommentControllerAccessTest {
 
     private static final String DELETE_COMMENT_PATH = "/api/access/comments";
 
+    private static final String RATE_COMMENT_PATH = "/api/access/comments/like";
+
     private static final String MOCK_USER_EMAIL = "user1@user.com";
 
     private static final String MOCK_USER_LOGIN = "user12345";
@@ -333,5 +335,153 @@ public class CommentControllerAccessTest {
         // And we're trying to delete the comment with our token
         mockMvc.perform(MockMvcRequestBuilders.delete(DELETE_COMMENT_PATH + "/" + newComment.getId()))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void likeComment_normal_case() throws Exception {
+        String commentId = "/1";
+        int like = 1;
+
+        mockMvc.perform(MockMvcRequestBuilders.put(RATE_COMMENT_PATH + commentId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(like));
+    }
+
+    @Test
+    public void likeComment_comment_has_users_like_already_case() throws Exception {
+        String commentId = "/1";
+        int like = 1;
+        int noRate = 0;
+
+        mockMvc.perform(MockMvcRequestBuilders.put(RATE_COMMENT_PATH + commentId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(like));
+
+        mockMvc.perform(MockMvcRequestBuilders.put(RATE_COMMENT_PATH + commentId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(noRate));
+    }
+
+    @Test
+    public void likeComment_comment_has_users_dislike_already_case() throws Exception {
+        String commentId = "/1";
+        int like = 1;
+        int dislike = -1;
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(RATE_COMMENT_PATH + commentId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(dislike));
+
+        mockMvc.perform(MockMvcRequestBuilders.put(RATE_COMMENT_PATH + commentId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(like));
+    }
+
+    @Test
+    public void likeComment_comment_is_not_found_case() throws Exception {
+        String notFoundCommentId = "/1000";
+
+        mockMvc.perform(MockMvcRequestBuilders.put(RATE_COMMENT_PATH + notFoundCommentId))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void likeComment_id_is_wrong_case() throws Exception {
+        String wrongCommentId = "/WRONG";
+
+        mockMvc.perform(MockMvcRequestBuilders.put(RATE_COMMENT_PATH + wrongCommentId))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void likeComment_id_is_negative_case() throws Exception {
+        String negativeCommentId = "/-1";
+
+        mockMvc.perform(MockMvcRequestBuilders.put(RATE_COMMENT_PATH + negativeCommentId))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void dislikeComment_normal_case() throws Exception {
+        String commentId = "/1";
+        int dislike = -1;
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(RATE_COMMENT_PATH + commentId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(dislike));
+    }
+
+    @Test
+    public void dislikeComment_comment_has_users_like_already_case() throws Exception {
+        String commentId = "/1";
+        int like = 1;
+        int dislike = -1;
+
+        mockMvc.perform(MockMvcRequestBuilders.put(RATE_COMMENT_PATH + commentId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(like));
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(RATE_COMMENT_PATH + commentId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(dislike));
+    }
+
+    @Test
+    public void dislikeComment_comment_has_users_dislike_already_case() throws Exception {
+        String commentId = "/1";
+        int noRate = 0;
+        int dislike = -1;
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(RATE_COMMENT_PATH + commentId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(dislike));
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(RATE_COMMENT_PATH + commentId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("rate").value(noRate));
+    }
+
+    @Test
+    public void dislikeComment_comment_not_found_case() throws Exception {
+        String notFoundCommentId = "/1000";
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(RATE_COMMENT_PATH + notFoundCommentId))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void dislikeComment_id_is_wrong_case() throws Exception {
+        String wrongCommentId = "/WRONG";
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(RATE_COMMENT_PATH + wrongCommentId))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void dislikeComment_id_is_negative_case() throws Exception {
+        String negativeCommentId = "/-1";
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(RATE_COMMENT_PATH + negativeCommentId))
+                .andExpect(status().isBadRequest());
     }
 }
