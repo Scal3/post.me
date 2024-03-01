@@ -307,4 +307,86 @@ public class CommentServiceTest {
             commentService.deleteComment(newComment.getId());
         });
     }
+
+    @Test
+    public void likeComment_normal_case() {
+        long postId = 1;
+        int like = 1;
+        CommentDto likedComment = commentService.likeComment(postId);
+
+        assertEquals(like, likedComment.getRate());
+    }
+
+    @Test
+    public void likeComment_comment_has_users_like_already_case() {
+        long postId = 1;
+        int like = 1;
+        int noRate = 0;
+
+        CommentDto likedComment = commentService.likeComment(postId);
+        assertEquals(like, likedComment.getRate());
+
+        CommentDto doubleLikedComment = commentService.likeComment(postId);
+        assertEquals(noRate, doubleLikedComment.getRate());
+    }
+
+    @Test
+    public void likeComment_comment_has_users_dislike_already_case() {
+        long postId = 1;
+        int like = 1;
+        int dislike = -1;
+
+        CommentDto dislikedComment = commentService.dislikeComment(postId);
+        assertEquals(dislike, dislikedComment.getRate());
+
+        CommentDto doubleLikedComment = commentService.likeComment(postId);
+        assertEquals(like, doubleLikedComment.getRate());
+    }
+
+    @Test
+    public void likeComment_comment_is_not_found_case() {
+        long notFoundPostId = 1000;
+        assertThrows(NotFoundException.class, () -> commentService.likeComment(notFoundPostId));
+    }
+
+    @Test
+    public void dislikeComment_normal_case() {
+        long postId = 1;
+        int dislike = -1;
+
+        CommentDto dislikedComment = commentService.dislikeComment(postId);
+        assertEquals(dislike, dislikedComment.getRate());
+    }
+
+    @Test
+    public void dislikeComment_comment_has_users_dislike_already_case() {
+        long postId = 1;
+        int dislike = -1;
+        int noRate = 0;
+
+        CommentDto dislikedComment = commentService.dislikeComment(postId);
+        assertEquals(dislike, dislikedComment.getRate());
+
+        CommentDto doubleDislikedComment = commentService.dislikeComment(postId);
+        assertEquals(noRate, doubleDislikedComment.getRate());
+    }
+
+    @Test
+    public void dislikeComment_comment_has_users_like_already_case() {
+        long postId = 1;
+        int like = 1;
+        int dislike = -1;
+
+        CommentDto doubleLikedComment = commentService.likeComment(postId);
+        assertEquals(like, doubleLikedComment.getRate());
+
+        CommentDto dislikedComment = commentService.dislikeComment(postId);
+        assertEquals(dislike, dislikedComment.getRate());
+    }
+
+    @Test
+    public void dislikeComment_comment_is_not_found_case() {
+        long notFoundPostId = 1000;
+        assertThrows(NotFoundException.class, () -> commentService.dislikeComment(notFoundPostId));
+    }
 }
