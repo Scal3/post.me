@@ -19,9 +19,15 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             "WHERE c.id = :commentId")
     Optional<Comment> findByIdWithLikes(@Param("commentId") long commentId);
 
-//    @Query("")
-//    List<Comment> findAllByPostIdOrderByLikesDesc(@Param("postId") long postId, Pageable pageable);
-//
-//    @Query("")
-//    List<Comment> findAllByPostIdOrderByLikesAsc(@Param("postId") long postId, Pageable pageable);
+    @Query("SELECT c, (SELECT COALESCE(SUM(cr.rate), 0) FROM CommentRate cr WHERE cr.comment = c) AS totalRate " +
+            "FROM Comment c " +
+            "WHERE c.post.id = :postId " +
+            "ORDER BY totalRate DESC")
+    List<Comment> findAllByPostIdOrderByLikesDesc(@Param("postId") long postId, Pageable pageable);
+
+    @Query("SELECT c, (SELECT COALESCE(SUM(cr.rate), 0) FROM CommentRate cr WHERE cr.comment = c) AS totalRate " +
+            "FROM Comment c " +
+            "WHERE c.post.id = :postId " +
+            "ORDER BY totalRate ASC")
+    List<Comment> findAllByPostIdOrderByLikesAsc(@Param("postId") long postId, Pageable pageable);
 }

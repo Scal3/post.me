@@ -327,12 +327,12 @@ public class CommentService {
             case DATE_OLDER:
                 comments = commentRepository.findAllByPostId(id, pageableWithOlderSort);
                 break;
-//            case LIKES_MORE:
-//                comments = commentRepository.findAllByPostIdOrderByLikesDesc(id, pageable);
-//                break;
-//            case LIKES_LESS:
-//                comments = commentRepository.findAllByPostIdOrderByLikesAsc(id, pageable);
-//                break;
+            case LIKES_MORE:
+                comments = commentRepository.findAllByPostIdOrderByLikesDesc(id, pageable);
+                break;
+            case LIKES_LESS:
+                comments = commentRepository.findAllByPostIdOrderByLikesAsc(id, pageable);
+                break;
             default:
                 comments = commentRepository.findAllByPostId(id, pageableWithFresherSort);
         }
