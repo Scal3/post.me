@@ -2,6 +2,7 @@ package com.herman.postme;
 
 import com.herman.postme.comment.dto.CommentDto;
 import com.herman.postme.comment.entity.Comment;
+import com.herman.postme.comment_rate.entity.CommentRate;
 import com.herman.postme.post.dto.PostDto;
 import com.herman.postme.post.dto.PostDtoWithCommentQuantity;
 import com.herman.postme.post.dto.PostDtoWithComments;
@@ -41,6 +42,16 @@ public class PostMeConfig {
                             .sum();
                 };
 
+        Converter<List<CommentRate>, Integer> commentsLikesConverter =
+                context -> {
+                    if (context.getSource() == null) return 0;
+
+                    return context.getSource()
+                            .stream()
+                            .mapToInt(CommentRate::getRate)
+                            .sum();
+                };
+
         Converter<List<Comment>, Integer> commentsQuantityConverter =
                 (MappingContext<List<Comment>, Integer> context) -> {
                     List<Comment> comments = context.getSource();
@@ -59,6 +70,11 @@ public class PostMeConfig {
         commentToCommentDtoWithUsernameMapper.addMappings(
                 mapper -> mapper.using(commentsUsernameConverter)
                         .map(Comment::getUser, CommentDto::setUsername)
+        );
+
+        commentToCommentDtoWithUsernameMapper.addMappings(
+                mapper -> mapper.using(commentsLikesConverter)
+                        .map(Comment::getRates, CommentDto::setRate)
         );
 
         TypeMap<Post, PostDtoWithComments> postToPostDtoWithCommentsMapper =
