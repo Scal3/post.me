@@ -1,13 +1,16 @@
 package com.herman.postme.comment.entity;
 
+import com.herman.postme.comment_rate.entity.CommentRate;
 import com.herman.postme.post.entity.Post;
 import javax.persistence.*;
+
 import com.herman.postme.user.entity.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "comments")
@@ -38,4 +41,7 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
+    private List<CommentRate> rates;
 }

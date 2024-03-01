@@ -47,4 +47,30 @@ public class CommentControllerAccess {
 
         log.debug("Exiting deleteComment method");
     }
+
+    @PutMapping(path = "/like/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public CommentDto likeComment(@PathVariable @Positive long id) {
+        log.debug("Entering likeComment method");
+        log.debug("Got {} as path variable", id);
+
+        CommentDto comment = commentService.likeComment(id);
+
+        log.debug("Exiting likeComment method");
+
+        return comment;
+    }
+
+    @DeleteMapping(path = "/like/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public CommentDto dislikeComment(@PathVariable @Positive long id) {
+        log.debug("Entering dislikeComment method");
+        log.debug("Got {} as path variable", id);
+
+        CommentDto post = commentService.dislikeComment(id);
+
+        log.debug("Exiting dislikeComment method");
+
+        return post;
+    }
 }
