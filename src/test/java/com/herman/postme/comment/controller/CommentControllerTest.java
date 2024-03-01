@@ -1,9 +1,9 @@
 package com.herman.postme.comment.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.herman.postme.comment.entity.Comment;
 import com.herman.postme.comment.enums.CommentSortOrder;
 import com.herman.postme.comment.repository.CommentRepository;
+import com.herman.postme.comment.service.CommentService;
 import com.herman.postme.post.entity.Post;
 import com.herman.postme.post.repository.PostRepository;
 import com.herman.postme.role.entity.Role;
@@ -66,7 +66,7 @@ public class CommentControllerTest {
 
     private final MockMvc mockMvc;
 
-    private final ObjectMapper objectMapper;
+    private final CommentService commentService;
 
     private final PostRepository postRepository;
 
@@ -217,6 +217,42 @@ public class CommentControllerTest {
                 .andExpect(jsonPath("[0].text").value(MOCK_COMMENT_FIRST_TEXT))
                 .andExpect(jsonPath("[1].text").value(MOCK_COMMENT_SECOND_TEXT))
                 .andExpect(jsonPath("[2].text").value(MOCK_COMMENT_THIRD_TEXT))
+
+                .andExpect(jsonPath("$", Matchers.hasSize(3)));
+    }
+
+    @Test
+    public void getAllPostComments_likes_more_sort_case() throws Exception {
+        commentService.likeComment(1);
+
+        long firstPostId = 1;
+
+        mockMvc.perform(MockMvcRequestBuilders.get(GET_POST_COMMENTS_PATH + "/" + firstPostId)
+                        .param("page", "0")
+                        .param("limit", "15")
+                        .param("sortBy", CommentSortOrder.LIKES_MORE.name()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("[0].text").value(MOCK_COMMENT_FIRST_TEXT))
+
+                .andExpect(jsonPath("$", Matchers.hasSize(3)));
+    }
+
+    @Test
+    public void getAllPostComments_likes_less_sort_case() throws Exception {
+        commentService.likeComment(1);
+
+        long firstPostId = 1;
+
+        mockMvc.perform(MockMvcRequestBuilders.get(GET_POST_COMMENTS_PATH + "/" + firstPostId)
+                        .param("page", "0")
+                        .param("limit", "15")
+                        .param("sortBy", CommentSortOrder.LIKES_LESS.name()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(jsonPath("[2].text").value(MOCK_COMMENT_FIRST_TEXT))
 
                 .andExpect(jsonPath("$", Matchers.hasSize(3)));
     }
