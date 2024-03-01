@@ -197,6 +197,28 @@ public class CommentServiceTest {
     }
 
     @Test
+    public void getAllPostComments_likes_more_sort_case() {
+        commentService.likeComment(1);
+
+        List<CommentDto> comments =
+                commentService.getAllPostComments(1, 0 , 15, CommentSortOrder.LIKES_MORE);
+
+        assertEquals(3, comments.size());
+        assertEquals(MOCK_COMMENT_FIRST_TEXT, comments.get(0).getText());
+    }
+
+    @Test
+    public void getAllPostComments_likes_less_sort_case() {
+        commentService.likeComment(1);
+
+        List<CommentDto> comments =
+                commentService.getAllPostComments(1, 0 , 15, CommentSortOrder.LIKES_LESS);
+
+        assertEquals(3, comments.size());
+        assertEquals(MOCK_COMMENT_FIRST_TEXT, comments.get(2).getText());
+    }
+
+    @Test
     public void getAllPostComments_post_id_is_not_found_case() {
         assertThrows(NotFoundException.class,
                 () -> commentService.getAllPostComments(1000, 0 , 15, CommentSortOrder.DATE_OLDER));
