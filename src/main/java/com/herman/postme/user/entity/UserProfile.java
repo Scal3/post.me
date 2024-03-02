@@ -2,6 +2,7 @@ package com.herman.postme.user.entity;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -24,6 +25,7 @@ public class UserProfile {
     @Column(nullable = true)
     private Integer age;
 
+    @ToString.Exclude
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
