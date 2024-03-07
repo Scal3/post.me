@@ -21,7 +21,6 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -357,7 +356,7 @@ public class PostService {
                 log.debug("PostRate was added to DB");
             }
 
-            Post postWithLike = postRepository.findByIdWithLikes(id)
+            Post postWithLike = postRepository.findByIdWithRates(id)
                     .orElseThrow(() -> new NotFoundException("Post with id " + id + " is not found"));
             log.debug("Getting updated post");
 
@@ -426,7 +425,7 @@ public class PostService {
                 log.debug("PostRate was added to DB");
             }
 
-            Post postWithDislike = postRepository.findByIdWithLikes(id)
+            Post postWithDislike = postRepository.findByIdWithRates(id)
                     .orElseThrow(() -> new NotFoundException("Post with id " + id + " is not found"));
             log.debug("Getting updated post");
 
@@ -454,29 +453,43 @@ public class PostService {
     ) {
         List<Post> posts;
         Pageable pageable = PageRequest.of(page, limit);
-        Pageable pageableWithFresherSort =
-                PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Pageable pageableWithOlderSort =
-                PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "createdAt"));
 
         switch (sortBy) {
             case DATE_OLDER:
-                posts = postRepository.findAll(pageableWithOlderSort).getContent();
+                posts = postRepository.findAllWithCommentsOrderByCreatedAtAsc(pageable);
+                posts = !posts.isEmpty()
+                        ? postRepository.findAllWithRatesOrderByCreatedAtAsc(pageable)
+                        : posts;
                 break;
             case COMMENTS_MORE:
-                posts = postRepository.findAllOrderByCommentsDesc(pageable);
+                posts = postRepository.findAllWithCommentsOrderByCommentsDesc(pageable);
+                posts = !posts.isEmpty()
+                        ? postRepository.findAllWithRatesOrderByCommentsDesc(pageable)
+                        : posts;
                 break;
             case COMMENTS_LESS:
-                posts = postRepository.findAllOrderByCommentsAsc(pageable);
+                posts = postRepository.findAllWithCommentsOrderByCommentsAsc(pageable);
+                posts = !posts.isEmpty()
+                        ? postRepository.findAllWithRatesOrderByCommentsAsc(pageable)
+                        : posts;
                 break;
             case LIKES_MORE:
-                posts = postRepository.findAllOrderByLikesDesc(pageable);
+                posts = postRepository.findAllWithCommentsOrderByLikesDesc(pageable);
+                posts = !posts.isEmpty()
+                        ? postRepository.findAllWithRatesOrderByLikesDesc(pageable)
+                        : posts;
                 break;
             case LIKES_LESS:
-                posts = postRepository.findAllOrderByLikesAsc(pageable);
+                posts = postRepository.findAllWithCommentsOrderByLikesAsc(pageable);
+                posts = !posts.isEmpty()
+                        ? postRepository.findAllWithRatesOrderByLikesAsc(pageable)
+                        : posts;
                 break;
             default:
-                posts = postRepository.findAll(pageableWithFresherSort).getContent();
+                posts = postRepository.findAllWithCommentsOrderByCreatedAtDesc(pageable);
+                posts = !posts.isEmpty()
+                        ? postRepository.findAllWithRatesOrderByCreatedAtDesc(pageable)
+                        : posts;
         }
 
         return posts;
@@ -487,29 +500,43 @@ public class PostService {
     ) {
         List<Post> posts;
         Pageable pageable = PageRequest.of(page, limit);
-        Pageable pageableWithFresherSort =
-                PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Pageable pageableWithOlderSort =
-                PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "createdAt"));
 
         switch (sortBy) {
             case DATE_OLDER:
-                posts = postRepository.findAllByTagsOrderByCreatedAtAsc(tags, pageableWithOlderSort);
+                posts = postRepository.findAllByTagsWithCommentsOrderByCreatedAtAsc(tags, pageable);
+                posts = !posts.isEmpty()
+                        ? postRepository.findAllByTagsWithRatesOrderByCreatedAtAsc(tags, pageable)
+                        : posts;
                 break;
             case COMMENTS_MORE:
-                posts = postRepository.findAllByTagsOrderByCommentsDesc(tags, pageable);
+                posts = postRepository.findAllByTagsWithCommentsOrderByCommentsDesc(tags, pageable);
+                posts = !posts.isEmpty()
+                        ? postRepository.findAllByTagsWithRatesOrderByCommentsDesc(tags, pageable)
+                        : posts;
                 break;
             case COMMENTS_LESS:
-                posts = postRepository.findAllByTagsOrderByCommentsAsc(tags, pageable);
+                posts = postRepository.findAllByTagsWithCommentsOrderByCommentsAsc(tags, pageable);
+                posts = !posts.isEmpty()
+                        ? postRepository.findAllByTagsWithRatesOrderByCommentsAsc(tags, pageable)
+                        : posts;
                 break;
             case LIKES_MORE:
-                posts = postRepository.findAllByTagsOrderByLikesDesc(tags, pageable);
+                posts = postRepository.findAllByTagsWithCommentsOrderByLikesDesc(tags, pageable);
+                posts = !posts.isEmpty()
+                        ? postRepository.findAllByTagsWithRatesOrderByLikesDesc(tags, pageable)
+                        : posts;
                 break;
             case LIKES_LESS:
-                posts = postRepository.findAllByTagsOrderByLikesAsc(tags, pageable);
+                posts = postRepository.findAllByTagsWithCommentsOrderByLikesAsc(tags, pageable);
+                posts = !posts.isEmpty()
+                        ? postRepository.findAllByTagsWithRatesOrderByLikesAsc(tags, pageable)
+                        : posts;
                 break;
             default:
-                posts = postRepository.findAllByTagsOrderByCreatedAtDesc(tags, pageableWithFresherSort);
+                posts = postRepository.findAllByTagsWithCommentsOrderByCreatedAtDesc(tags, pageable);
+                posts = !posts.isEmpty()
+                        ? postRepository.findAllByTagsWithRatesOrderByCreatedAtDesc(tags, pageable)
+                        : posts;
         }
 
         return posts;
@@ -518,29 +545,43 @@ public class PostService {
     private List<Post> getUsersPostsBySort(long userId, int page, int limit, PostSortOrder sortBy) {
         List<Post> posts;
         Pageable pageable = PageRequest.of(page, limit);
-        Pageable pageableWithFresherSort =
-                PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Pageable pageableWithOlderSort =
-                PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "createdAt"));
 
         switch (sortBy) {
             case DATE_OLDER:
-                posts = postRepository.findAllByUserId(userId, pageableWithOlderSort);
+                posts = postRepository.findAllByUserIdWithCommentsOrderByCreatedAtAsc(userId, pageable);
+                posts = !posts.isEmpty()
+                        ? postRepository.findAllByUserIdWithRatesOrderByCreatedAtAsc(userId, pageable)
+                        : posts;
                 break;
             case COMMENTS_MORE:
-                posts = postRepository.findAllByUserIdOrderByCommentCountDesc(userId, pageable);
+                posts = postRepository.findAllByUserIdWithCommentsOrderByCommentCountDesc(userId, pageable);
+                posts = !posts.isEmpty()
+                        ? postRepository.findAllByUserIdWithRatesOrderByCommentCountDesc(userId, pageable)
+                        : posts;
                 break;
             case COMMENTS_LESS:
-                posts = postRepository.findAllByUserIdOrderByCommentCountAsc(userId, pageable);
+                posts = postRepository.findAllByUserIdWithCommentsOrderByCommentCountAsc(userId, pageable);
+                posts = !posts.isEmpty()
+                        ? postRepository.findAllByUserIdWithRatesOrderByCommentCountAsc(userId, pageable)
+                        : posts;
                 break;
             case LIKES_MORE:
-                posts = postRepository.findAllByUserIdOrderByLikesDesc(userId, pageable);
+                posts = postRepository.findAllByUserIdWithCommentsOrderByLikesDesc(userId, pageable);
+                posts = !posts.isEmpty()
+                        ? postRepository.findAllByUserIdWithRatesOrderByLikesDesc(userId, pageable)
+                        : posts;
                 break;
             case LIKES_LESS:
-                posts = postRepository.findAllByUserIdOrderByLikesAsc(userId, pageable);
+                posts = postRepository.findAllByUserIdWithCommentsOrderByLikesAsc(userId, pageable);
+                posts = !posts.isEmpty()
+                        ? postRepository.findAllByUserIdWithRatesOrderByLikesAsc(userId, pageable)
+                        : posts;
                 break;
             default:
-                posts = postRepository.findAllByUserId(userId, pageableWithFresherSort);
+                posts = postRepository.findAllByUserIdWithCommentsOrderByCreatedAtDesc(userId, pageable);
+                posts = !posts.isEmpty()
+                        ? postRepository.findAllByUserIdWithRatesOrderByCreatedAtDesc(userId, pageable)
+                        : posts;
         }
 
         return posts;
