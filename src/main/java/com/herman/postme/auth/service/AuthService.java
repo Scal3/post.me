@@ -79,6 +79,7 @@ public class AuthService {
         }
     }
 
+    @Transactional(readOnly = true)
     public TokenDto login(LoginDto dto) {
         try {
             log.debug("Entering login method");

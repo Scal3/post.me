@@ -26,7 +26,7 @@ public class UserProfile {
     private Integer age;
 
     @ToString.Exclude
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 }

@@ -18,12 +18,12 @@ public class CommentRate {
     private CommentRateId id;
 
     @ToString.Exclude
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
     @ToString.Exclude
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id", insertable = false, updatable = false)
     private Comment comment;
 
