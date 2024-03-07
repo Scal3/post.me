@@ -1,24 +1,37 @@
 package com.herman.postme.post.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.herman.postme.tag.dto.TagDto;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import jakarta.validation.constraints.*;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PostDto {
 
-    @NotNull
-    @NotBlank
-    @Size(min = 1, max = 55)
-    private String username;
+    private long id;
 
-    @NotNull
-    @NotBlank
-    @Size(min = 1, max = 100)
     private String heading;
 
-    @NotNull
-    @NotBlank
-    @Size(min = 10, max = 255)
     private String text;
 
+    private boolean isUpdated;
+
+    private int rate;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
+    private List<TagDto> tags;
+
+    @JsonProperty("isUpdated")
+    public boolean getIsUpdated() {
+        return isUpdated;
+    }
 }

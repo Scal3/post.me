@@ -1,25 +1,26 @@
 package com.herman.postme.comment.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.herman.postme.comment_rate.entity.CommentRate;
 import com.herman.postme.post.entity.Post;
-import jakarta.persistence.*;
+import javax.persistence.*;
+
+import com.herman.postme.user.entity.User;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "comments")
 @Data
+@NoArgsConstructor
 public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
-    @Column(
-            nullable = false,
-            length = 55)
-    private String username;
 
     @Column(
             nullable = false,
@@ -31,17 +32,16 @@ public class Comment {
             nullable = false)
     private LocalDateTime createdAt;
 
-    @ManyToOne
-    @JoinColumn(name = "posts_id")
-    @JsonIgnore
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    public Comment() {}
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    public Comment(String username, String text, LocalDateTime createdAt, Post post) {
-        this.username = username;
-        this.text = text;
-        this.createdAt = createdAt;
-        this.post = post;
-    }
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
+    private List<CommentRate> rates;
 }
