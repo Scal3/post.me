@@ -23,7 +23,6 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -221,7 +220,7 @@ public class CommentService {
                 log.debug("CommentRate was added to DB");
             }
 
-            Comment commentWithLike = commentRepository.findByIdWithLikes(id)
+            Comment commentWithLike = commentRepository.findByIdWithRates(id)
                     .orElseThrow(() -> new NotFoundException("Comment with id " + id + " is not found"));
             log.debug("Getting updated comment");
 
@@ -290,7 +289,7 @@ public class CommentService {
                 log.debug("CommentRate was added to DB");
             }
 
-            Comment commentWithLike = commentRepository.findByIdWithLikes(id)
+            Comment commentWithLike = commentRepository.findByIdWithRates(id)
                     .orElseThrow(() -> new NotFoundException("Comment with id " + id + " is not found"));
             log.debug("Getting updated comment");
 
@@ -318,23 +317,19 @@ public class CommentService {
     ) {
         List<Comment> comments;
         Pageable pageable = PageRequest.of(page, limit);
-        Pageable pageableWithFresherSort =
-                PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Pageable pageableWithOlderSort =
-                PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "createdAt"));
 
         switch (sortBy) {
             case DATE_OLDER:
-                comments = commentRepository.findAllByPostId(id, pageableWithOlderSort);
+                comments = commentRepository.findAllByPostIdWithRatesOrderByCreatedAtAsc(id, pageable);
                 break;
             case LIKES_MORE:
-                comments = commentRepository.findAllByPostIdOrderByLikesDesc(id, pageable);
+                comments = commentRepository.findAllByPostIdWithRatesOrderByLikesDesc(id, pageable);
                 break;
             case LIKES_LESS:
-                comments = commentRepository.findAllByPostIdOrderByLikesAsc(id, pageable);
+                comments = commentRepository.findAllByPostIdWithRatesOrderByLikesAsc(id, pageable);
                 break;
             default:
-                comments = commentRepository.findAllByPostId(id, pageableWithFresherSort);
+                comments = commentRepository.findAllByPostIdWithRatesOrderByCreatedAtDesc(id, pageable);
         }
 
         return comments;
