@@ -1,6 +1,5 @@
 package com.herman.postme.comment.entity;
 
-import com.herman.postme.comment_rate.entity.CommentRate;
 import com.herman.postme.post.entity.Post;
 import javax.persistence.*;
 

@@ -1,6 +1,5 @@
-package com.herman.postme.post_rate.entity;
+package com.herman.postme.comment.entity;
 
-import com.herman.postme.post.entity.Post;
 import com.herman.postme.user.entity.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,13 +8,13 @@ import lombok.ToString;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "posts_rates")
+@Table(name = "comments_rates")
 @Data
 @NoArgsConstructor
-public class PostRate {
+public class CommentRate {
 
     @EmbeddedId
-    private PostRateId id;
+    private CommentRateId id;
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
@@ -24,8 +23,8 @@ public class PostRate {
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", insertable = false, updatable = false, nullable = false)
-    private Post post;
+    @JoinColumn(name = "comment_id", insertable = false, updatable = false, nullable = false)
+    private Comment comment;
 
     @Column(nullable = false)
     private int rate;

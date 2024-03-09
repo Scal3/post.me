@@ -2,12 +2,12 @@ package com.herman.postme;
 
 import com.herman.postme.comment.dto.CommentDto;
 import com.herman.postme.comment.entity.Comment;
-import com.herman.postme.comment_rate.entity.CommentRate;
+import com.herman.postme.comment.entity.CommentRate;
 import com.herman.postme.post.dto.PostDto;
 import com.herman.postme.post.dto.PostDtoWithCommentQuantity;
 import com.herman.postme.post.dto.PostDtoWithComments;
 import com.herman.postme.post.entity.Post;
-import com.herman.postme.post_rate.entity.PostRate;
+import com.herman.postme.post.entity.PostRate;
 import com.herman.postme.user.entity.User;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -27,10 +27,6 @@ public class PostMeConfig {
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-//        modelMapper.getConfiguration()
-//                .setPropertyCondition((MappingContext<Object, Object> context) ->
-//                        (!(context.getSource() instanceof PersistentCollection)
-//                        || ((PersistentCollection)context.getSource()).wasInitialized()));
 
         Converter<List<PostRate>, Integer> postsLikesConverter =
                 context -> {
