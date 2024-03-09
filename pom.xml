@@ -15,6 +15,8 @@
 	<description>Simple Blogging Platform</description>
 	<properties>
 		<java.version>11</java.version>
+		<java-jwt.version>4.3.0</java-jwt.version>
+		<modelmapper.version>3.1.1</modelmapper.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -74,13 +76,13 @@
 		<dependency>
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
-			<version>4.3.0</version>
+			<version>${java-jwt.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.modelmapper</groupId>
 			<artifactId>modelmapper</artifactId>
-			<version>3.1.1</version>
+			<version>${modelmapper.version}</version>
 		</dependency>
 	</dependencies>
 
