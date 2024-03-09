@@ -1,7 +1,7 @@
-package com.herman.postme.comment_rate.repository;
+package com.herman.postme.comment.repository;
 
-import com.herman.postme.comment_rate.entity.CommentRate;
-import com.herman.postme.comment_rate.entity.CommentRateId;
+import com.herman.postme.comment.entity.CommentRate;
+import com.herman.postme.comment.entity.CommentRateId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

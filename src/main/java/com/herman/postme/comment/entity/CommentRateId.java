@@ -1,4 +1,4 @@
-package com.herman.postme.post_rate.entity;
+package com.herman.postme.comment.entity;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,11 +10,11 @@ import java.io.Serializable;
 @Embeddable
 @Data
 @NoArgsConstructor
-public class PostRateId implements Serializable {
+public class CommentRateId implements Serializable {
 
     @Column(name = "user_id")
     private long userId;
 
-    @Column(name = "post_id")
-    private long postId;
+    @Column(name = "comment_id")
+    private long commentId;
 }
